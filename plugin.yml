@@ -1,0 +1,13 @@
+name: Ultimates
+main: com.kNoAPP.Ults.Ultimates
+version: 1.0
+commands:
+    ults:
+        description: Display Ultimate
+    recall:
+        description: Recall to a Location
+    chunk:
+        description: Chunk Manager
+    scramble:
+        description: Screw JayJay05.
+ 
