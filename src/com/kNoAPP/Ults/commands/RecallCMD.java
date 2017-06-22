@@ -11,6 +11,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -86,7 +87,12 @@ public class RecallCMD implements CommandExecutor, Listener {
 						p.playSound(p.getLocation(), Sound.BLOCK_TRIPWIRE_CLICK_ON, 1F, 1F);
 					}
 					if(tl <= 0) {
+						Entity m = p.getVehicle();
 						p.teleport(l);
+						if(m != null) {
+							m.teleport(l);
+							m.addPassenger(p);
+						}
 						p.playSound(p.getLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1F, 1F);
 						
 						//Builds Particles
