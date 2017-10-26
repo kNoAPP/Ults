@@ -1,11 +1,13 @@
 package com.kNoAPP.Ults;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.kNoAPP.Ults.aspects.Actions;
+import com.kNoAPP.Ults.aspects.IPS;
 import com.kNoAPP.Ults.commands.ChunkLoader;
 import com.kNoAPP.Ults.commands.RecallCMD;
 import com.kNoAPP.Ults.commands.ScrambleCmds;
@@ -22,6 +24,7 @@ public class Ultimates extends JavaPlugin implements Listener {
 		addRecipies();
 		importData();
 		ChunkLoader.load(); //Load Chunks
+		for(Player pl : Bukkit.getOnlinePlayers()) new IPS(pl);
 		
 		long tEnd = System.currentTimeMillis();
 		getPlugin().getLogger().info("Successfully Enabled! (" + (tEnd - tStart) + " ms)");
@@ -42,6 +45,7 @@ public class Ultimates extends JavaPlugin implements Listener {
 		this.getServer().getPluginManager().registerEvents(new Actions(), this);
 		
 		this.getCommand("ults").setExecutor(new UltCmds());
+		this.getCommand("snball").setExecutor(new UltCmds());
 		
 		this.getCommand("recall").setExecutor(new RecallCMD());
 		

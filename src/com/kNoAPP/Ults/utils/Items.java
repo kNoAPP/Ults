@@ -27,7 +27,6 @@ public class Items {
 		return is;
 	}
 	
-	@SuppressWarnings("deprecation")
 	public static ShapedRecipe getRespawnRecipe() {
 		ShapedRecipe sr = new ShapedRecipe(Items.getRespawnItem());
 		sr.shape("AAA", "BCB", "AAA");
@@ -35,5 +34,14 @@ public class Items {
 		sr.setIngredient('B', Material.EMERALD);
 		sr.setIngredient('C', Material.END_CRYSTAL);
 		return sr;
+	}
+	
+	public static ItemStack getSnowballGun(double power) {
+		ItemStack is = new ItemStack(Material.DIAMOND_HOE);
+		ItemMeta im = is.getItemMeta();
+		im.setDisplayName(ChatColor.GOLD + "Snowball Gun " + power);
+		im.setUnbreakable(true);
+		is.setItemMeta(im);
+		return is;
 	}
 }

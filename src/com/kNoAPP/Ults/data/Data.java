@@ -77,6 +77,8 @@ public enum Data {
 			}
 			if(this == MAIN) {
 				fc.set("Version", "1.0.0");
+				fc.set("Enable.Bouncing-Projectiles", false);
+				fc.set("Enable.IPS", false);
 			}
 			this.saveDataFile(fc);
 			this.logDataFile();

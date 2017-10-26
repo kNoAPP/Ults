@@ -4,6 +4,8 @@ version: 1.0
 commands:
     ults:
         description: Display Ultimate
+    snball:
+        description: Physics
     recall:
         description: Recall to a Location
     chunk:

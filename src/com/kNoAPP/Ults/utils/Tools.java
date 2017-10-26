@@ -121,4 +121,13 @@ public class Tools {
 			le.addPotionEffect(pe);
 		}
 	}
+	
+	public static Object[] canParseToDouble(String s) {
+		try {
+			double d = Double.parseDouble(s);
+			return new Object[]{true, d};
+		} catch(NumberFormatException ex) {
+			return new Object[]{false, 0};
+		}
+	}
 }
