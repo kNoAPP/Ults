@@ -53,7 +53,8 @@ public class Actions implements Listener {
 	@EventHandler
 	public void onQuit(PlayerQuitEvent e) {
 		Player p = e.getPlayer();
-		IPS.getIPS(p.getUniqueId()).remove();
+		FileConfiguration fc = Data.MAIN.getFileConfig();
+		if(fc.getBoolean("Enable.IPS")) IPS.getIPS(p.getUniqueId()).remove();
 	}
 	
 	@EventHandler
