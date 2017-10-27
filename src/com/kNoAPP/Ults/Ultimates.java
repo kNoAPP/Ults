@@ -45,7 +45,7 @@ public class Ultimates extends JavaPlugin implements Listener {
 		this.getServer().getPluginManager().registerEvents(new Actions(), this);
 		
 		this.getCommand("ults").setExecutor(new UltCmds());
-		this.getCommand("snball").setExecutor(new UltCmds());
+		//this.getCommand("snball").setExecutor(new UltCmds());
 		
 		this.getCommand("recall").setExecutor(new RecallCMD());
 		
