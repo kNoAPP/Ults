@@ -36,6 +36,7 @@ public class Items {
 		return sr;
 	}
 	
+	/*
 	public static ItemStack getSnowballGun(double power) {
 		ItemStack is = new ItemStack(Material.DIAMOND_HOE);
 		ItemMeta im = is.getItemMeta();
@@ -44,4 +45,5 @@ public class Items {
 		is.setItemMeta(im);
 		return is;
 	}
+	*/
 }

@@ -21,6 +21,7 @@ public class UltCmds implements CommandExecutor {
 					}
 				}
 			}
+			/*
 			if(cmd.getName().equalsIgnoreCase("snball")) {
 				if(args.length == 1) {
 					Object[] isDouble = Tools.canParseToDouble(args[0]);
@@ -30,6 +31,7 @@ public class UltCmds implements CommandExecutor {
 					}
 				}
 			}
+			*/
 		}
 		return false;
 	}

@@ -108,10 +108,11 @@ public class Actions implements Listener {
 							p.playSound(p.getLocation(), Sound.ENTITY_CHICKEN_HURT, 1F, 1F);
 						}
 					}
+					/*
 					if(is.hasItemMeta()) {
 						ItemMeta im = is.getItemMeta();
 						String name = im.getDisplayName();
-						if(name.startsWith(ChatColor.GOLD + "Snowball Gun") && is.getType() == Material.DIAMOND_HOE) {
+						if(name != null && name.startsWith(ChatColor.GOLD + "Snowball Gun") && is.getType() == Material.DIAMOND_HOE) {
 							Snowball sb = p.getWorld().spawn(p.getLocation().clone().add(0, 1.5, 0).add(p.getLocation().getDirection().normalize()), Snowball.class);
 							sb.setFireTicks(100);
 							Object[] isDouble = Tools.canParseToDouble(name.replaceFirst(ChatColor.GOLD + "Snowball Gun ", ""));
@@ -126,11 +127,13 @@ public class Actions implements Listener {
 							p.sendMessage(ChatColor.GRAY + "M: " + mag + " X: " + v.getX() + " Y: " + v.getY() + " Z: " + v.getZ());
 						}
 					}
+					*/
 				}
 			}
 		}
 	}
 	
+	/*
 	private void graphTrail(Player p, Location l, Projectile proj, double mag) {
 		new BukkitRunnable() {
 			long start = System.currentTimeMillis();
@@ -159,6 +162,7 @@ public class Actions implements Listener {
 			}
 		}.runTaskTimer(Ultimates.getPlugin(), 0L, 2L);
 	}
+	*/
 	
 	@EventHandler
 	public void onSneak(PlayerToggleSneakEvent e) {
