@@ -130,4 +130,9 @@ public class Tools {
 			return new Object[]{false, 0};
 		}
 	}
+	
+	public static double randomNumber(double min, double max) {
+	    Random r = new Random();
+	    return (r.nextInt((int)((max-min)*10+1))+min*10) / 10.0;
+	}
 }

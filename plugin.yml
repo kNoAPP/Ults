@@ -10,4 +10,6 @@ commands:
         description: Chunk Manager
     scramble:
         description: Screw JayJay05.
+    soundgen:
+        description: Find Sounds
  

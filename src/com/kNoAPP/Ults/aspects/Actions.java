@@ -1,6 +1,5 @@
 package com.kNoAPP.Ults.aspects;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -10,7 +9,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -18,20 +16,15 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
 import com.kNoAPP.Ults.Ultimates;
 import com.kNoAPP.Ults.data.Data;
 import com.kNoAPP.Ults.utils.Items;
-import com.kNoAPP.Ults.utils.Tools;
 
 public class Actions implements Listener {
 
@@ -39,7 +32,6 @@ public class Actions implements Listener {
 	public void onJoin(PlayerJoinEvent e) {
 		Player p = e.getPlayer();
 		FileConfiguration fc = Data.MAIN.getFileConfig();
-		if(fc.getBoolean("Enable.IPS")) new IPS(p);
 		p.setGravity(true);
 		if(!fc.isSet("Player." + p.getUniqueId() + ".Respawns")) {
 			fc.set("Player." + p.getUniqueId() + ".Respawns", 1);
@@ -48,13 +40,6 @@ public class Actions implements Listener {
 		
 		int r = fc.getInt("Player." + p.getUniqueId() + ".Respawns");
 		if(r > 0) p.sendMessage(Message.RESPAWN.getMessage("You have " + r + " respawn(s) left!"));
-	}
-	
-	@EventHandler
-	public void onQuit(PlayerQuitEvent e) {
-		Player p = e.getPlayer();
-		FileConfiguration fc = Data.MAIN.getFileConfig();
-		if(fc.getBoolean("Enable.IPS")) IPS.getIPS(p.getUniqueId()).remove();
 	}
 	
 	@EventHandler
@@ -77,10 +62,6 @@ public class Actions implements Listener {
 	public void onClick(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
 		if(e.getHand() == EquipmentSlot.HAND) {
-			if(e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
-				FileConfiguration fc = Data.MAIN.getFileConfig();
-				if(fc.getBoolean("Enable.IPS")) IPS.getIPS(p.getUniqueId()).add();
-			}
 			if(e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 				ItemStack is = p.getInventory().getItemInMainHand();
 				if(is != null) {
@@ -163,18 +144,6 @@ public class Actions implements Listener {
 		}.runTaskTimer(Ultimates.getPlugin(), 0L, 2L);
 	}
 	*/
-	
-	@EventHandler
-	public void onSneak(PlayerToggleSneakEvent e) {
-		Player p = e.getPlayer();
-		FileConfiguration fc = Data.MAIN.getFileConfig();
-		
-		if(fc.getBoolean("Enable.IPS")) {
-			IPS ips = IPS.getIPS(p.getUniqueId());
-			if(e.isSneaking()) ips.start();
-			else p.sendMessage(ChatColor.GOLD + "IPS: " + ChatColor.GRAY + ips.cps());
-		}
-	}
 	
 	@EventHandler
     public void onProjHit(ProjectileHitEvent e) {
