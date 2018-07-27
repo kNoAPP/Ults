@@ -55,7 +55,7 @@ public class UltCmds implements CommandExecutor {
 										this.cancel();
 									}
 								}
-							}.runTaskTimer(Ultimates.getPlugin(), 20L, 60L);
+							}.runTaskTimer(Ultimates.getPlugin(), 20L, 30L);
 						} else p.sendMessage(Message.SOUNDGEN.getMessage("On already..."));
 					}
 					if(args[0].equalsIgnoreCase("off")) {
