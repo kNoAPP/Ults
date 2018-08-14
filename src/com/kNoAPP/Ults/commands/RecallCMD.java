@@ -91,7 +91,7 @@ public class RecallCMD implements CommandExecutor, Listener {
 						p.teleport(l);
 						if(m != null) {
 							m.teleport(l);
-							m.addPassenger(p);
+							m.setPassenger(p);
 						}
 						p.playSound(p.getLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1F, 1F);
 						
