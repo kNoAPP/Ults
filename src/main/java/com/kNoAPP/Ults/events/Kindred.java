@@ -38,9 +38,9 @@ public class Kindred {
 			as.setHelmet(new ItemStack(Material.QUARTZ_BLOCK));
 			as.setHeadPose(new EulerAngle(0, 0, 0));
 			
-			w.playSound(as.getLocation(), Sound.ENTITY_FIREWORK_LAUNCH, 1F, 0.7F);
-			w.playSound(as.getLocation(), Sound.ENTITY_LIGHTNING_THUNDER, 1F, 1.4F);
-			w.playSound(as.getLocation(), Sound.ENTITY_FIREWORK_LARGE_BLAST_FAR, 5F, 1.5F);
+			w.playSound(as.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1F, 0.7F);
+			w.playSound(as.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1F, 1.4F);
+			w.playSound(as.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST_FAR, 5F, 1.5F);
 			
 			w.spawnParticle(Particle.FLAME, as.getLocation().clone().add(0, 1.75, 0), 20, 1F, 0.5F, 0.5F, 0.5);
 		}

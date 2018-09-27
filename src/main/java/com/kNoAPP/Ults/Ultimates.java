@@ -1,6 +1,7 @@
 package com.kNoAPP.Ults;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
@@ -23,17 +24,15 @@ import com.kNoAPP.Ults.utils.Tools;
 
 public class Ultimates extends JavaPlugin implements Listener {
 	
-	private static Plugin plugin;
+	private static Ultimates plugin;
 	
 	@Override
 	public void onEnable() {
 		long tStart = System.currentTimeMillis();
 		plugin = this;
 		register();
-		addRecipies();
 		importData();
-		ChunkLoader.load(); //Load Chunks
-		ninja();
+		importAspects();
 		
 		long tEnd = System.currentTimeMillis();
 		getPlugin().getLogger().info("Successfully Enabled! (" + (tEnd - tStart) + " ms)");
@@ -42,34 +41,32 @@ public class Ultimates extends JavaPlugin implements Listener {
 	@Override
 	public void onDisable() {
 		long tStart = System.currentTimeMillis();
+		exportAspects();
 		exportData();
 		long tEnd = System.currentTimeMillis();
 		getPlugin().getLogger().info("Successfully Disabled! (" + (tEnd - tStart) + " ms)");
 	}
 	
 	private void register() {
-		this.getServer().getPluginManager().registerEvents(this, this);
-		this.getServer().getPluginManager().registerEvents(new RecallCMD(), this);
-		this.getServer().getPluginManager().registerEvents(new ChunkLoader(), this);
-		this.getServer().getPluginManager().registerEvents(new Actions(), this);
+		getServer().getPluginManager().registerEvents(this, this);
+		getServer().getPluginManager().registerEvents(new RecallCMD(), this);
+		getServer().getPluginManager().registerEvents(new ChunkLoader(), this);
+		getServer().getPluginManager().registerEvents(new Actions(), this);
 		
-		this.getCommand("ults").setExecutor(new UltCmds());
-		this.getCommand("soundgen").setExecutor(new UltCmds());
-		//this.getCommand("snball").setExecutor(new UltCmds());
+		getCommand("ults").setExecutor(new UltCmds());
+		getCommand("soundgen").setExecutor(new UltCmds());
+		getCommand("recall").setExecutor(new RecallCMD());
+		getCommand("chunk").setExecutor(new ChunkLoader());
+		getCommand("scramble").setExecutor(new ScrambleCmds());
 		
-		this.getCommand("recall").setExecutor(new RecallCMD());
-		
-		this.getCommand("chunk").setExecutor(new ChunkLoader());
-		
-		this.getCommand("scramble").setExecutor(new ScrambleCmds());
+		addRecipies();
 	}
 	
 	private void addRecipies() {
-		//Respawn Item
-		this.getServer().addRecipe(Items.getRespawnRecipe());
+		getServer().addRecipe(Items.getRespawnRecipe());
 	}
 	
-	public static void importData() {
+	private void importData() {
 		getPlugin().getLogger().info("Importing .yml Files...");
 		for(Data d : Data.values()) {
 			if(d != Data.CONFIG) {
@@ -83,21 +80,19 @@ public class Ultimates extends JavaPlugin implements Listener {
 		}
 	}
 	
-	public static void exportData() {
+	private void importAspects() {
+		
+	}
+	
+	public void exportData() {
 		getPlugin().getLogger().info("Exporting .yml Files...");
 		for(Data d : Data.values()) {
 			d.logDataFile();
 		}
 	}
 	
-	public void ninja() {
-		new BukkitRunnable() {
-			public void run() {
-				for(Player pl : Bukkit.getOnlinePlayers()) {
-					if(isNinja(pl)) vanish(pl);
-				}
-			}
-		}.runTaskTimer(plugin, 0L, 60L);
+	private void exportAspects() {
+		
 	}
 	
 	public void vanish(final Player p) {
@@ -119,36 +114,28 @@ public class Ultimates extends JavaPlugin implements Listener {
 	
 	public boolean isNinja(Player p) {
 		if(p.getInventory().getHelmet() != null &&
-				p.getInventory().getChestplate() != null &&
-				p.getInventory().getLeggings() != null &&
-				p.getInventory().getBoots() != null) {
-			if(p.getInventory().getHelmet().getType() == Material.LEATHER_HELMET &&
-					p.getInventory().getChestplate().getType() == Material.LEATHER_CHESTPLATE &&
-					p.getInventory().getLeggings().getType() == Material.LEATHER_LEGGINGS &&
-					p.getInventory().getBoots().getType() == Material.LEATHER_BOOTS) {
-				if(p.getInventory().getHelmet().hasItemMeta() &&
-						p.getInventory().getChestplate().hasItemMeta() &&
-						p.getInventory().getLeggings().hasItemMeta() &&
-						p.getInventory().getBoots().hasItemMeta()) {
-					LeatherArmorMeta lmh = (LeatherArmorMeta) p.getInventory().getHelmet().getItemMeta();
-					LeatherArmorMeta lmc = (LeatherArmorMeta) p.getInventory().getChestplate().getItemMeta();
-					LeatherArmorMeta lml = (LeatherArmorMeta) p.getInventory().getLeggings().getItemMeta();
-					LeatherArmorMeta lmb = (LeatherArmorMeta) p.getInventory().getBoots().getItemMeta();
-					return lmh.getColor().getRed() == 29 &&
-							lmh.getColor().getGreen() == 29 &&
-							lmh.getColor().getBlue() == 33 &&
-									lmc.getColor().getRed() == 29 &&
-									lmc.getColor().getGreen() == 29 &&
-									lmc.getColor().getBlue() == 33 &&
-											lml.getColor().getRed() == 29 &&
-											lml.getColor().getGreen() == 29 &&
-											lml.getColor().getBlue() == 33 &&
-													lmb.getColor().getRed() == 29 &&
-													lmb.getColor().getGreen() == 29 &&
-													lmb.getColor().getBlue() == 33;
-				}
+			p.getInventory().getChestplate() != null &&
+			p.getInventory().getLeggings() != null &&
+			p.getInventory().getBoots() != null &&
+			p.getInventory().getHelmet().getType() == Material.LEATHER_HELMET &&
+			p.getInventory().getChestplate().getType() == Material.LEATHER_CHESTPLATE &&
+			p.getInventory().getLeggings().getType() == Material.LEATHER_LEGGINGS &&
+			p.getInventory().getBoots().getType() == Material.LEATHER_BOOTS &&
+			p.getInventory().getHelmet().hasItemMeta() &&
+			p.getInventory().getChestplate().hasItemMeta() &&
+			p.getInventory().getLeggings().hasItemMeta() &&
+			p.getInventory().getBoots().hasItemMeta()) {
+				LeatherArmorMeta lmh = (LeatherArmorMeta) p.getInventory().getHelmet().getItemMeta();
+				LeatherArmorMeta lmc = (LeatherArmorMeta) p.getInventory().getChestplate().getItemMeta();
+				LeatherArmorMeta lml = (LeatherArmorMeta) p.getInventory().getLeggings().getItemMeta();
+				LeatherArmorMeta lmb = (LeatherArmorMeta) p.getInventory().getBoots().getItemMeta();
+				Color black = Color.fromRGB(29, 29, 33);
+				
+				return lmh.getColor().equals(black) &&
+						lmc.getColor().equals(black) &&
+						lml.getColor().equals(black) &&
+						lmb.getColor().equals(black);
 			}
-		}
 		return false;
 	}
 	

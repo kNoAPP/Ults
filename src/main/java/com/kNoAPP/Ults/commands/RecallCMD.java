@@ -72,7 +72,7 @@ public class RecallCMD implements CommandExecutor, Listener {
 		return false;
 	}
 	
-	private void recall(Player p, Location l) {
+	private void recall(final Player p, final Location l) {
 		recalls.add(p.getName());
 		
 		new BukkitRunnable() {

@@ -89,61 +89,10 @@ public class Actions implements Listener {
 							p.playSound(p.getLocation(), Sound.ENTITY_CHICKEN_HURT, 1F, 1F);
 						}
 					}
-					/*
-					if(is.hasItemMeta()) {
-						ItemMeta im = is.getItemMeta();
-						String name = im.getDisplayName();
-						if(name != null && name.startsWith(ChatColor.GOLD + "Snowball Gun") && is.getType() == Material.DIAMOND_HOE) {
-							Snowball sb = p.getWorld().spawn(p.getLocation().clone().add(0, 1.5, 0).add(p.getLocation().getDirection().normalize()), Snowball.class);
-							sb.setFireTicks(100);
-							Object[] isDouble = Tools.canParseToDouble(name.replaceFirst(ChatColor.GOLD + "Snowball Gun ", ""));
-							Vector v = p.getLocation().getDirection().normalize();
-							double mag = (double) isDouble[1];
-							sb.setVelocity(v.multiply(mag));
-							graphTrail(p, p.getLocation().clone(), sb, mag);
-							
-							p.sendMessage(ChatColor.GOLD + "Starting Location:");
-							p.sendMessage(ChatColor.GRAY + " X: " + p.getLocation().getX() + " Y: " + p.getLocation().getY() + " Z: " + p.getLocation().getZ());
-							p.sendMessage(ChatColor.GOLD + "Starting Vector:");
-							p.sendMessage(ChatColor.GRAY + "M: " + mag + " X: " + v.getX() + " Y: " + v.getY() + " Z: " + v.getZ());
-						}
-					}
-					*/
 				}
 			}
 		}
 	}
-	
-	/*
-	private void graphTrail(Player p, Location l, Projectile proj, double mag) {
-		new BukkitRunnable() {
-			long start = System.currentTimeMillis();
-			public void run() {
-				if(proj != null && proj.isValid() && !proj.isDead()) proj.getWorld().spawnParticle(Particle.DRIP_LAVA, proj.getLocation(), 1, 0F, 0F, 0F, 0.01);
-				else {
-					double time = (System.currentTimeMillis()-start)/1000.0;
-					double dx = Math.abs(proj.getLocation().getX() - l.getX());
-					double dy = l.getY() - proj.getLocation().getY();
-					double dz = Math.abs(proj.getLocation().getZ() - l.getZ());
-					double vYInit = mag*l.getDirection().normalize().getY();
-					double gravity = (2.0*(vYInit*time+dy))/Math.pow(time, 2);
-					
-					p.sendMessage(ChatColor.GOLD + "Time: " + ChatColor.GRAY + time);
-					p.sendMessage(ChatColor.GOLD + "Finishing Location:");
-					p.sendMessage(ChatColor.GRAY + "X: " + proj.getLocation().getX()
-							+ " Y: " + proj.getLocation().getY()
-							+ " Z: " + proj.getLocation().getZ());
-					
-					p.sendMessage(ChatColor.YELLOW + "Change (X): " + ChatColor.GRAY + dx);
-					p.sendMessage(ChatColor.YELLOW + "Change (Y): " + ChatColor.GRAY + dy);
-					p.sendMessage(ChatColor.YELLOW + "Change (Z): " + ChatColor.GRAY + dz);
-					p.sendMessage(ChatColor.DARK_GREEN + "Gravity: " + ChatColor.GRAY + gravity);
-					this.cancel();
-				}
-			}
-		}.runTaskTimer(Ultimates.getPlugin(), 0L, 2L);
-	}
-	*/
 	
 	@EventHandler
     public void onProjHit(ProjectileHitEvent e) {
@@ -153,7 +102,7 @@ public class Actions implements Listener {
 	
 	        int bounces = 5;
 	        if(!proj.hasMetadata("bouncesLeft")) proj.setMetadata("bouncesLeft", new FixedMetadataValue(Ultimates.getPlugin(), 5));
-	        else bounces = (int) proj.getMetadata("bouncesLeft").get(0).value();
+	        else bounces = (Integer) proj.getMetadata("bouncesLeft").get(0).value();
 	
 	        if(bounces == 0) return;
 	        

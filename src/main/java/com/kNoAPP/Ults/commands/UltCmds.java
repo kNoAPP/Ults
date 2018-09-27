@@ -23,7 +23,7 @@ public class UltCmds implements CommandExecutor {
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if(sender instanceof Player) {
-			Player p = (Player) sender;
+			final Player p = (Player) sender;
 			if(cmd.getName().equalsIgnoreCase("ults")) {
 				if(args.length == 1) {
 					if(args[0].equalsIgnoreCase("kindred")) {

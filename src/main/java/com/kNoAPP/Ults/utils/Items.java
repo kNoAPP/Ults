@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -14,7 +15,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class Items {
 
 	public static ItemStack getRespawnItem() {
-		ItemStack is = new ItemStack(Material.TOTEM, 1);
+		ItemStack is = new ItemStack(Material.TOTEM_OF_UNDYING, 1);
 		ItemMeta im = is.getItemMeta();
 		im.setDisplayName(ChatColor.GOLD + "Respawn Token");
 		List<String> lores = new ArrayList<String>();
@@ -28,22 +29,11 @@ public class Items {
 	}
 	
 	public static ShapedRecipe getRespawnRecipe() {
-		ShapedRecipe sr = new ShapedRecipe(Items.getRespawnItem());
+		ShapedRecipe sr = new ShapedRecipe(NamespacedKey.minecraft("Ultimates"), Items.getRespawnItem());
 		sr.shape("AAA", "BCB", "AAA");
 		sr.setIngredient('A', Material.GOLD_BLOCK);
 		sr.setIngredient('B', Material.EMERALD);
 		sr.setIngredient('C', Material.END_CRYSTAL);
 		return sr;
 	}
-	
-	/*
-	public static ItemStack getSnowballGun(double power) {
-		ItemStack is = new ItemStack(Material.DIAMOND_HOE);
-		ItemMeta im = is.getItemMeta();
-		im.setDisplayName(ChatColor.GOLD + "Snowball Gun " + power);
-		im.setUnbreakable(true);
-		is.setItemMeta(im);
-		return is;
-	}
-	*/
 }

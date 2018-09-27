@@ -1,0 +1,9 @@
+Version: 1.0.0
+MySQL:
+  host: localhost
+  port: 3306
+  database: ExampleDB
+  username: root
+  password: psswd
+Enable:
+  Bouncing-Projectiles: false
