@@ -1,9 +1,9 @@
 package com.kNoAPP.Ults;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
@@ -19,11 +19,13 @@ import com.kNoAPP.Ults.commands.RecallCMD;
 import com.kNoAPP.Ults.commands.ScrambleCmds;
 import com.kNoAPP.Ults.commands.UltCmds;
 import com.kNoAPP.Ults.data.Data;
+import com.kNoAPP.Ults.data.HikariMedium;
 import com.kNoAPP.Ults.utils.Items;
 import com.kNoAPP.Ults.utils.Tools;
 
 public class Ultimates extends JavaPlugin implements Listener {
 	
+	private HikariMedium medium;
 	private static Ultimates plugin;
 	
 	@Override
@@ -68,16 +70,8 @@ public class Ultimates extends JavaPlugin implements Listener {
 	
 	private void importData() {
 		getPlugin().getLogger().info("Importing .yml Files...");
-		for(Data d : Data.values()) {
-			if(d != Data.CONFIG) {
-				if(Data.CONFIG.getFileConfig().getBoolean("UseMainFolder") == true) {
-					d.setFile("");
-				} else {
-					d.setFile(Data.CONFIG.getFileConfig().getString("UseCustomFolder"));
-				}
-			}
-			d.createDataFile();
-		}
+		FileConfiguration fc = Data.CONFIG.getCachedYML();
+		medium = new HikariMedium(fc.getString("MySQL.host"), fc.getInt("MySQL.port"), fc.getString("MySQL.database"), fc.getString("MySQL.username"), fc.getString("MySQL.password"));
 	}
 	
 	private void importAspects() {
@@ -86,9 +80,6 @@ public class Ultimates extends JavaPlugin implements Listener {
 	
 	public void exportData() {
 		getPlugin().getLogger().info("Exporting .yml Files...");
-		for(Data d : Data.values()) {
-			d.logDataFile();
-		}
 	}
 	
 	private void exportAspects() {
@@ -137,6 +128,10 @@ public class Ultimates extends JavaPlugin implements Listener {
 						lmb.getColor().equals(black);
 			}
 		return false;
+	}
+	
+	public HikariMedium getMedium() {
+		return medium;
 	}
 	
 	public static Plugin getPlugin() {

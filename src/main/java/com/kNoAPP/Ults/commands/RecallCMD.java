@@ -34,7 +34,7 @@ public class RecallCMD implements CommandExecutor, Listener {
 			Player p = (Player) sender;
 			if(cmd.getName().equalsIgnoreCase("recall")) {
 				if(args.length == 0) {
-					Location l = (Location) Data.MAIN.getFileConfig().get("Player." + p.getUniqueId() + ".Recall");
+					Location l = (Location) Data.CONFIG.getCachedYML().get("Player." + p.getUniqueId() + ".Recall");
 					if(l != null) {
 						if(!recalls.contains(p.getName())) {
 							recall(p, l);
@@ -51,17 +51,17 @@ public class RecallCMD implements CommandExecutor, Listener {
 					if(args[0].equalsIgnoreCase("set")) {
 						p.sendMessage(Message.RECALL.getMessage("Your location has been saved."));
 						p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2F, 1F);
-						FileConfiguration fc = Data.MAIN.getFileConfig();
+						FileConfiguration fc = Data.CONFIG.getCachedYML();
 						fc.set("Player." + p.getUniqueId() + ".Recall", p.getLocation());
-						Data.MAIN.saveDataFile(fc);
+						Data.CONFIG.saveYML(fc);
 						return true;
 					}
 					if(args[0].equalsIgnoreCase("kill")) {
 						p.sendMessage(Message.RECALL.getMessage("Your location has been removed."));
 						p.playSound(p.getLocation(), Sound.ENTITY_BLAZE_AMBIENT, 2F, 1F);
-						FileConfiguration fc = Data.MAIN.getFileConfig();
+						FileConfiguration fc = Data.CONFIG.getCachedYML();
 						fc.set("Player." + p.getUniqueId() + ".Recall", null);
-						Data.MAIN.saveDataFile(fc);
+						Data.CONFIG.saveYML(fc);
 						return true;
 					}
 					p.sendMessage(Message.USAGE.getMessage("/recall [set/kill]"));
@@ -115,7 +115,7 @@ public class RecallCMD implements CommandExecutor, Listener {
 					}
 				} else {
 					Tools.sendActionbar(p, ChatColor.RED + "Teleport Cancelled!");
-					p.playSound(p.getLocation(), Sound.ENTITY_ZOMBIE_BREAK_DOOR_WOOD, 1F, 1F);
+					p.playSound(p.getLocation(), Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 1F, 1F);
 					this.cancel();
 				}
 			}

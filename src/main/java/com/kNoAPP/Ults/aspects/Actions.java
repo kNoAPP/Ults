@@ -31,11 +31,11 @@ public class Actions implements Listener {
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
 		Player p = e.getPlayer();
-		FileConfiguration fc = Data.MAIN.getFileConfig();
+		FileConfiguration fc = Data.CONFIG.getCachedYML();
 		p.setGravity(true);
 		if(!fc.isSet("Player." + p.getUniqueId() + ".Respawns")) {
 			fc.set("Player." + p.getUniqueId() + ".Respawns", 1);
-			Data.MAIN.saveDataFile(fc);
+			Data.CONFIG.saveYML(fc);
 		}
 		
 		int r = fc.getInt("Player." + p.getUniqueId() + ".Respawns");
@@ -45,11 +45,11 @@ public class Actions implements Listener {
 	@EventHandler
 	public void onDeath(PlayerDeathEvent e) {
 		Player p = e.getEntity();
-		FileConfiguration fc = Data.MAIN.getFileConfig();
+		FileConfiguration fc = Data.CONFIG.getCachedYML();
 		int r = fc.getInt("Player." + p.getUniqueId() + ".Respawns");
 		if(r > 0) {
 			fc.set("Player." + p.getUniqueId() + ".Respawns", r-1);
-			Data.MAIN.saveDataFile(fc);
+			Data.CONFIG.saveYML(fc);
 			
 			e.setKeepInventory(true);
 			e.setKeepLevel(true);
@@ -67,10 +67,10 @@ public class Actions implements Listener {
 				if(is != null) {
 					if(is.isSimilar(Items.getRespawnItem())) {
 						if(p.getLevel() >= 30) {
-							FileConfiguration fc = Data.MAIN.getFileConfig();
+							FileConfiguration fc = Data.CONFIG.getCachedYML();
 							int r = fc.getInt("Player." + p.getUniqueId() + ".Respawns");
 							fc.set("Player." + p.getUniqueId() + ".Respawns", r+1);
-							Data.MAIN.saveDataFile(fc);
+							Data.CONFIG.saveYML(fc);
 							
 							if(is.getAmount() > 1) {
 								is.setAmount(is.getAmount() - 1);
@@ -96,7 +96,7 @@ public class Actions implements Listener {
 	
 	@EventHandler
     public void onProjHit(ProjectileHitEvent e) {
-		FileConfiguration fc = Data.MAIN.getFileConfig();
+		FileConfiguration fc = Data.CONFIG.getCachedYML();
 		if(fc.getBoolean("Enable.Bouncing-Projectiles")) {
 	        Projectile proj = e.getEntity();
 	

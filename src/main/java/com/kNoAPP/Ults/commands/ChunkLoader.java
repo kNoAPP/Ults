@@ -24,7 +24,7 @@ public class ChunkLoader implements CommandExecutor, Listener {
 		if(sender instanceof Player) {
 			Player p = (Player) sender;
 			if(cmd.getName().equalsIgnoreCase("chunk")) {
-				FileConfiguration fc = Data.MAIN.getFileConfig();
+				FileConfiguration fc = Data.CONFIG.getCachedYML();
 				List<String> chunksR = fc.getStringList("Chunk.Load");
 				List<Chunk> chunks = convert(chunksR);
 				if(args.length == 0) {
@@ -41,7 +41,7 @@ public class ChunkLoader implements CommandExecutor, Listener {
 						if(!isFrozen(chunks, pc)) {
 							chunksR.add(Serializer.compress(p.getLocation()));
 							fc.set("Chunk.Load", chunksR);
-							Data.MAIN.saveDataFile(fc);
+							Data.CONFIG.saveYML(fc);
 							
 							p.sendMessage(Message.CHUNK.getMessage("Chunk(" + pc.getX() + ", " + pc.getZ() + ") has been frozen."));
 							return true;
@@ -54,7 +54,7 @@ public class ChunkLoader implements CommandExecutor, Listener {
 						if(isFrozen(chunks, pc)) {
 							chunksR.remove(getEntry(chunksR, pc));
 							fc.set("Chunk.Load", chunksR);
-							Data.MAIN.saveDataFile(fc);
+							Data.CONFIG.saveYML(fc);
 							
 							p.sendMessage(Message.CHUNK.getMessage("Chunk(" + pc.getX() + ", " + pc.getZ() + ") has been unfrozen."));
 							return true;
@@ -103,7 +103,7 @@ public class ChunkLoader implements CommandExecutor, Listener {
 	}
 	
 	public static void load() {
-		FileConfiguration fc = Data.MAIN.getFileConfig();
+		FileConfiguration fc = Data.CONFIG.getCachedYML();
 		List<String> chunksR = fc.getStringList("Chunk.Load");
 		List<Chunk> chunks = convert(chunksR);
 		
@@ -115,7 +115,7 @@ public class ChunkLoader implements CommandExecutor, Listener {
 	
 	@EventHandler
 	public void onUnload(ChunkUnloadEvent e) {
-		FileConfiguration fc = Data.MAIN.getFileConfig();
+		FileConfiguration fc = Data.CONFIG.getCachedYML();
 		List<String> chunksR = fc.getStringList("Chunk.Load");
 		List<Chunk> chunks = convert(chunksR);
 		

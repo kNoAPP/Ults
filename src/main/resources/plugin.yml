@@ -1,6 +1,7 @@
 name: Ultimates
 main: com.kNoAPP.Ults.Ultimates
 version: 1.0
+api-version: 1.13
 commands:
     ults:
         description: Display Ultimate
