@@ -15,17 +15,20 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import com.kNoAPP.Ults.aspects.Message;
+import com.kNoAPP.Ults.commands.CommandHandler.GenericType;
 
 public class Executor implements CommandExecutor, TabCompleter {
 
-	private static String[] COMMANDS = new String[] {"compass"};
+	private static String[] COMMANDS = new String[] {"ult"};
 	private HashMap<String, CommandHandler> commands = new HashMap<String, CommandHandler>();
 	
 	public Executor() {
-		//commands.put("compass help", new HelpCommand(true, "/compass help", null));
-		commands.put("compass setlobby", new SetlobbyCommand(false, "/compass setlobby", "compass.setlobby"));
-		commands.put("compass generateplots", new PlotGenerationCommand(false, "/compass generateplots <length> <width> <size> <space>", "compass.generateplots", 
-				GenericType.INTEGER, GenericType.INTEGER, GenericType.INTEGER, GenericType.INTEGER));
+		commands.put("ult help", new HelpCommand(true, "/ult help", null));
+		commands.put("ult recall", new RecallCommand(false, "/ult recall (set/kill)", null, 0, GenericType.STRING));
+		commands.put("ult chunk", new ChunkLoaderCommand(false, "/ult chunk (freeze/unfreeze)", null, 0, GenericType.STRING));
+		commands.put("ult scramble", new ScrambleCommand(false, "/ult scramble <off/on> [radius] [ticks]", null, 1, GenericType.STRING, GenericType.INTEGER, GenericType.INTEGER));
+		commands.put("ult ults", new UltimateCommand(false, "/ult ults <kindred>", null, GenericType.STRING));
+		commands.put("ult soundgen", new SoundGenCommand(false, "/ult soundgen (on/off)", null, 0, GenericType.STRING));
 	}
 	
 	@Override
@@ -40,18 +43,21 @@ public class Executor implements CommandExecutor, TabCompleter {
 						if(!ch.hasPermission(sender)) sender.sendMessage(Message.MISSING.getMessage(ch.getPermission() != null ? ch.getPermission() : "OP"));
 						else if(!ch.allowConsole() && sender instanceof ConsoleCommandSender) sender.sendMessage(ChatColor.GOLD + "Console> " + ChatColor.GRAY + "This command may only be run by players.");
 						else if(!ch.validArgs(nargs)) sender.sendMessage(Message.USAGE.getMessage(ch.getUsage()));
-						else return ch.execute(sender, nargs);
+						else if(!ch.execute(sender, nargs)) sender.sendMessage(Message.USAGE.getMessage(ch.getUsage()));
 					} else sender.sendMessage(Message.WARN.getMessage("Unknown command, type /" + command + " for help."));
 				} else {
-					if(command.equals("compass")) {
-						sender.sendMessage(Message.INFO.getMessage("Compass - By kNoAPP"));
+					if(command.equals("ult")) {
+						sender.sendMessage(Message.INFO.getMessage("Ultimates - By kNoAPP"));
 						sender.sendMessage(ChatColor.DARK_GREEN + "------------------");
-						sender.sendMessage(Message.HELP.getMessage("/compass help - Show Help"));
-						if(commands.get("compass setlobby").hasPermission(sender)) sender.sendMessage(Message.HELP.getMessage("/compass setlobby - Set the lobby at your location"));
-						if(commands.get("compass generateplots").hasPermission(sender)) sender.sendMessage(Message.HELP.getMessage("/compass generateplots <length> <width> <size> <space> - Plots"));
-						return true;
+						sender.sendMessage(Message.HELP.getMessage("/ult help - Show Help"));
+						if(commands.get("ult recall").hasPermission(sender)) sender.sendMessage(Message.HELP.getMessage("/ult recall <set/kill> - Recall to a location"));
+						if(commands.get("ult chunk").hasPermission(sender)) sender.sendMessage(Message.HELP.getMessage("/ult chunk <freeze/unfreeze> - Prevent a chunk from dying"));
+						if(commands.get("ult scramble").hasPermission(sender)) sender.sendMessage(Message.HELP.getMessage("/ult scramble <off/on> <radius> <ticks> - Screw JayJay05"));
+						if(commands.get("ult ults").hasPermission(sender)) sender.sendMessage(Message.HELP.getMessage("/ult ults <kindred> - Cool particle effects"));
+						if(commands.get("ult soundgen").hasPermission(sender)) sender.sendMessage(Message.HELP.getMessage("/ult soundgen (on/off) - Generate custom sounds"));
 					}
 				}
+				return true;
 			}
 		}
 		return false;
@@ -67,16 +73,15 @@ public class Executor implements CommandExecutor, TabCompleter {
 				
 				for(CommandHandler ch : commands.values()) {
 					if(ch.hasPermission(sender)) {
-						String syntax = ch.getUsage().replaceFirst("/compass", "").split("\\<")[0].split("\\[")[0].split("\\(")[0];
-						String[] parts = ch.getUsage().replaceFirst("/compass", "").split(" ");
+						String syntax = ch.getUsage().replaceFirst("/" + command, "").split("\\<")[0].split("\\[")[0].split("\\(")[0];
+						String[] parts = ch.getUsage().replaceFirst("/" + command, "").split(" ");
 						if((syntax.startsWith(typed) || typed.startsWith(syntax)) && parts.length > args.length) suggestions.add(parts[args.length]);
 					}
 				}
 			}
 			if(suggestions.size() == 0) {
-				for(Player pl : Bukkit.getOnlinePlayers()) {
+				for(Player pl : Bukkit.getOnlinePlayers()) 
 					if(sender instanceof ConsoleCommandSender || ((Player) sender).canSee(pl)) suggestions.add(pl.getName());
-				}
 			}
 			Collections.sort(suggestions);
 		}

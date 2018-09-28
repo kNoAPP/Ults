@@ -1,16 +1,8 @@
 name: Ultimates
+author: kNoAPP
 main: com.kNoAPP.Ults.Ultimates
 version: 1.0
 api-version: 1.13
 commands:
-    ults:
-        description: Display Ultimate
-    recall:
-        description: Recall to a Location
-    chunk:
-        description: Chunk Manager
-    scramble:
-        description: Screw JayJay05.
-    soundgen:
-        description: Find Sounds
- 
+    ult:
+        description: Ultimate help command

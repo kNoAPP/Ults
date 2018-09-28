@@ -29,7 +29,7 @@ public class Items {
 	}
 	
 	public static ShapedRecipe getRespawnRecipe() {
-		ShapedRecipe sr = new ShapedRecipe(NamespacedKey.minecraft("Ultimates"), Items.getRespawnItem());
+		ShapedRecipe sr = new ShapedRecipe(NamespacedKey.minecraft("ultimates"), Items.getRespawnItem());
 		sr.shape("AAA", "BCB", "AAA");
 		sr.setIngredient('A', Material.GOLD_BLOCK);
 		sr.setIngredient('B', Material.EMERALD);

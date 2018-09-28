@@ -1,5 +1,9 @@
 package com.kNoAPP.Ults.aspects;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -12,10 +16,14 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -23,8 +31,10 @@ import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
 import com.kNoAPP.Ults.Ultimates;
+import com.kNoAPP.Ults.commands.RecallCommand;
 import com.kNoAPP.Ults.data.Data;
 import com.kNoAPP.Ults.utils.Items;
+import com.kNoAPP.Ults.utils.Serializer;
 
 public class Actions implements Listener {
 
@@ -135,4 +145,62 @@ public class Actions implements Listener {
 	        }
 		}
     }
+	
+	@EventHandler
+	public void damage(EntityDamageEvent e) {
+		if(e.getEntity() instanceof Player) {
+			Player p = (Player) e.getEntity();
+			RecallCommand.cancel(p.getName());
+		}
+	}
+	
+	@EventHandler
+	public void move(PlayerMoveEvent e) {
+		if(e.getTo().distance(e.getFrom()) > 0.05) {
+			RecallCommand.cancel(e.getPlayer().getName());
+		}
+	}
+	
+	@EventHandler
+	public void leave(PlayerQuitEvent e) {
+		RecallCommand.cancel(e.getPlayer().getName());
+	}
+	
+	@EventHandler
+	public void onUnload(ChunkUnloadEvent e) {
+		FileConfiguration fc = Data.CONFIG.getCachedYML();
+		List<String> chunksR = fc.getStringList("Chunk.Load");
+		List<Chunk> chunks = convert(chunksR);
+		
+		if(isFrozen(chunks, e.getChunk())) {
+			e.setCancelled(true);
+			Ultimates.getPlugin().getLogger().info("Chunk(" + e.getChunk().getX() + ", " + e.getChunk().getZ() + ") tried to unload!");
+		}
+	}
+	
+	public static List<Chunk> convert(List<String> raw) {
+		List<Chunk> chunks = new ArrayList<Chunk>();
+		for(String c : raw) chunks.add(Serializer.expand(c).getChunk());
+		return chunks;
+	}
+	
+	public static boolean isSimilar(Chunk c1, Chunk c2) {
+		return (c1.getX() == c2.getX() && c1.getZ() == c2.getZ() && c1.getWorld().getName().equals(c2.getWorld().getName()));
+	}
+	
+	public static boolean isFrozen(List<Chunk> chunks, Chunk cc) {
+		for(Chunk c : chunks) if(isSimilar(cc, c)) return true;
+		return false;
+	}
+	
+	public static void load() {
+		FileConfiguration fc = Data.CONFIG.getCachedYML();
+		List<String> chunksR = fc.getStringList("Chunk.Load");
+		List<Chunk> chunks = convert(chunksR);
+		
+		for(Chunk c : chunks) {
+			c.load();
+			Ultimates.getPlugin().getLogger().info("Chunk(" + c.getX() + ", " + c.getZ() + ") has been loaded!");
+		}
+	}
 }

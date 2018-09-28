@@ -38,7 +38,7 @@ public abstract class CommandHandler {
 	
 	public boolean validArgs(String[] args) {
 		if(args.length < argMin) return false;
-		for(int i=0; i<format.length; i++) {
+		for(int i=0; i<format.length && i<args.length; i++) {
 			if(format[i] == GenericType.INTEGER) {
 				try {
 					Integer.parseInt(args[i]);

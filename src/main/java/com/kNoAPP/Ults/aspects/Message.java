@@ -38,9 +38,8 @@ public enum Message {
 	
 	public String getMessage(String s) {
 		if(this == MISSING) return prefix + ChatColor.GRAY + "You are missing Node [" + ChatColor.DARK_AQUA + s + ChatColor.GRAY + "]!";
-		if(this == USAGE || this == INFO || this == COMPASS) return prefix + ChatColor.GRAY + s;
 		if(this == WARN) return prefix + ChatColor.RED + s;
 		if(this == HELP) return prefix + ChatColor.GOLD + s.replaceFirst(" -", ChatColor.GRAY + " -");
-		return null;
+		return prefix + ChatColor.GRAY + s;
 	}
 }
