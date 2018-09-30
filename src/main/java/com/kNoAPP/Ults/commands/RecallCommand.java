@@ -80,10 +80,17 @@ public class RecallCommand extends CommandHandler {
 					}
 					if(tl <= 0) {
 						Entity m = p.getVehicle();
+						List<Entity> passs = p.getPassengers();
 						p.teleport(l);
 						if(m != null) {
 							m.teleport(l);
 							m.addPassenger(p);
+						}
+						for(Entity pass : passs) {
+							if(pass != null) {
+								pass.teleport(l);
+								p.addPassenger(pass);
+							}
 						}
 						p.playSound(p.getLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1F, 1F);
 						

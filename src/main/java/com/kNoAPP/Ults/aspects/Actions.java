@@ -19,6 +19,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -176,6 +177,16 @@ public class Actions implements Listener {
 			e.setCancelled(true);
 			Ultimates.getPlugin().getLogger().info("Chunk(" + e.getChunk().getX() + ", " + e.getChunk().getZ() + ") tried to unload!");
 		}
+	}
+	
+	@EventHandler
+	public void onCommand(PlayerCommandPreprocessEvent e) {
+		String cmd = e.getMessage();
+		if(cmd.startsWith("/recall")) e.setMessage(e.getMessage().replaceFirst("/recall", "/ult recall"));
+		if(cmd.startsWith("/chunk")) e.setMessage(e.getMessage().replaceFirst("/chunk", "/ult chunk"));
+		if(cmd.startsWith("/scramble")) e.setMessage(e.getMessage().replaceFirst("/scramble", "/ult scramble"));
+		if(cmd.startsWith("/ults")) e.setMessage(e.getMessage().replaceFirst("/ults", "/ult ults"));
+		if(cmd.startsWith("/soundgen")) e.setMessage(e.getMessage().replaceFirst("/soundgen", "/ult soundgen"));
 	}
 	
 	public static List<Chunk> convert(List<String> raw) {
