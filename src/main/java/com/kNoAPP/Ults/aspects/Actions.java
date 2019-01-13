@@ -1,9 +1,13 @@
 package com.kNoAPP.Ults.aspects;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -28,6 +32,13 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
+import org.bukkit.scoreboard.Team.Option;
+import org.bukkit.scoreboard.Team.OptionStatus;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
@@ -38,11 +49,20 @@ import com.kNoAPP.Ults.utils.Items;
 import com.kNoAPP.Ults.utils.Serializer;
 
 public class Actions implements Listener {
+	
+	private static HashMap<UUID, Integer> afk = new HashMap<UUID, Integer>();
+	private static Team collision;
+	private static final int AFK_ACTIVATION_TIME = 45;
 
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
 		Player p = e.getPlayer();
+		join(p);
+	}
+	
+	public static void join(Player p) {
 		FileConfiguration fc = Data.CONFIG.getCachedYML();
+		afk.put(p.getUniqueId(), 60);
 		p.setGravity(true);
 		if(!fc.isSet("Player." + p.getUniqueId() + ".Respawns")) {
 			fc.set("Player." + p.getUniqueId() + ".Respawns", 1);
@@ -51,6 +71,18 @@ public class Actions implements Listener {
 		
 		int r = fc.getInt("Player." + p.getUniqueId() + ".Respawns");
 		if(r > 0) p.sendMessage(Message.RESPAWN.getMessage("You have " + r + " respawn(s) left!"));
+	}
+	
+	@EventHandler
+	public void onleave(PlayerQuitEvent e) {
+		Player p = e.getPlayer();
+		leave(p);
+	}
+	
+	public static void leave(Player p) {
+		RecallCommand.cancel(p.getName());
+		if(afk.get(p.getUniqueId()) <= 0) removeAfk(p);
+		afk.remove(p.getUniqueId());
 	}
 	
 	@EventHandler
@@ -148,7 +180,7 @@ public class Actions implements Listener {
     }
 	
 	@EventHandler
-	public void damage(EntityDamageEvent e) {
+	public void onDamage(EntityDamageEvent e) {
 		if(e.getEntity() instanceof Player) {
 			Player p = (Player) e.getEntity();
 			RecallCommand.cancel(p.getName());
@@ -159,12 +191,54 @@ public class Actions implements Listener {
 	public void move(PlayerMoveEvent e) {
 		if(e.getTo().distance(e.getFrom()) > 0.05) {
 			RecallCommand.cancel(e.getPlayer().getName());
+			Player p = e.getPlayer();
+			if(p.getGameMode() == GameMode.SURVIVAL) {
+				/*p.setCollidable(p.getNearbyEntities(8, 8, 8).stream().filter(en -> {
+					if(!(en instanceof Player)) return false;
+					Player pl = (Player) en;
+					return p != pl && afk.get(pl.getUniqueId()) <= 0;
+				}).count() == 0);*/
+				if(afk.get(p.getUniqueId()) <= 0) {
+					p.sendMessage(Message.INFO.getMessage("You are no longer AFK."));
+					removeAfk(p);
+				}
+				afk.put(p.getUniqueId(), AFK_ACTIVATION_TIME+1);
+			}
 		}
 	}
 	
-	@EventHandler
-	public void leave(PlayerQuitEvent e) {
-		RecallCommand.cancel(e.getPlayer().getName());
+	private static void removeAfk(Player p) {
+		p.setInvulnerable(false);
+		collision.removeEntry(p.getName());
+		p.getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_ACTIVATE, 1F, 0.8F);
+		p.removePotionEffect(PotionEffectType.GLOWING);
+	}
+	
+	private static void afkLoop() {
+		Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
+		collision = sb.getTeam("no_collisions") != null ? sb.getTeam("no_collisions") : sb.registerNewTeam("no_collisions");
+		collision.setOption(Option.COLLISION_RULE, OptionStatus.NEVER);
+		
+		new BukkitRunnable() {
+			public void run() {
+				for(UUID uuid : afk.keySet()) {
+					Player p = Bukkit.getPlayer(uuid);
+					if(p.getGameMode() != GameMode.SURVIVAL) continue;
+					int afkTime = afk.get(uuid) - 1;
+					if(afkTime == 0) {
+						p.sendMessage(Message.INFO.getMessage("You are now AFK and cannot be damaged."));
+						p.setInvulnerable(true);
+						collision.addEntry(p.getName());
+						p.getWorld().playSound(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1F, 0.8F);
+						p.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 1000000, 1));
+						afk.put(uuid, afkTime);
+					} else if(afkTime == -1) {
+						p.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, p.getLocation().clone().add(0, 0.8, 0), 4, 0.3, 0.3, 0.3, 0.01);
+						p.getWorld().playSound(p.getLocation(), Sound.ENTITY_CAT_PURR, 0.05F, 1.2F);
+					} else afk.put(uuid, afkTime);
+				}
+			}
+		}.runTaskTimer(Ultimates.getPlugin(), 0L, 20L);
 	}
 	
 	@EventHandler
@@ -213,5 +287,8 @@ public class Actions implements Listener {
 			c.load();
 			Ultimates.getPlugin().getLogger().info("Chunk(" + c.getX() + ", " + c.getZ() + ") has been loaded!");
 		}
+		
+		for(Player pl : Bukkit.getOnlinePlayers()) afk.put(pl.getUniqueId(), AFK_ACTIVATION_TIME);
+		afkLoop();
 	}
 }

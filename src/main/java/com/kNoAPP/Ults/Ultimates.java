@@ -1,6 +1,8 @@
 package com.kNoAPP.Ults;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -61,6 +63,8 @@ public class Ultimates extends JavaPlugin implements Listener {
 		getPlugin().getLogger().info("Importing aspects...");
 		Actions.load();
 		new Ninja();
+		
+		for(Player pl : Bukkit.getOnlinePlayers()) Actions.join(pl);
 	}
 	
 	public void exportData() {
@@ -69,6 +73,7 @@ public class Ultimates extends JavaPlugin implements Listener {
 	
 	private void exportAspects() {
 		getPlugin().getLogger().info("Exporting aspects...");
+		for(Player pl : Bukkit.getOnlinePlayers()) Actions.leave(pl);
 	}
 	
 	public HikariMedium getMedium() {

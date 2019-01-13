@@ -13,7 +13,7 @@ public enum Message {
 	SCRAMBLE(ChatColor.GOLD + "Scramble> "),
 	SOUNDGEN(ChatColor.GOLD + "Sounds> "),
 	CHUNK(ChatColor.GOLD + "Chunks> "),
-	COMPASS(ChatColor.GOLD + "Ultimates> "),
+	ULTIMATES(ChatColor.GOLD + "Ultimates> "),
 	
 	HELP("  ");
 	
