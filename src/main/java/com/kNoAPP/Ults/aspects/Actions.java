@@ -17,10 +17,13 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Witch;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -47,6 +50,7 @@ import com.kNoAPP.Ults.commands.RecallCommand;
 import com.kNoAPP.Ults.data.Data;
 import com.kNoAPP.Ults.utils.Items;
 import com.kNoAPP.Ults.utils.Serializer;
+import com.kNoAPP.Ults.utils.Tools;
 
 public class Actions implements Listener {
 	
@@ -81,8 +85,12 @@ public class Actions implements Listener {
 	
 	public static void leave(Player p) {
 		RecallCommand.cancel(p.getName());
+		
 		if(afk.get(p.getUniqueId()) <= 0) removeAfk(p);
 		afk.remove(p.getUniqueId());
+		
+		Levitation l = Levitation.getLevatator(p.getUniqueId());
+		if(l != null) l.drop();
 	}
 	
 	@EventHandler
@@ -105,10 +113,16 @@ public class Actions implements Listener {
 	public void onClick(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
 		if(e.getHand() == EquipmentSlot.HAND) {
+			Levitation lev = Levitation.getLevatator(p.getUniqueId());
 			if(e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 				ItemStack is = p.getInventory().getItemInMainHand();
+				if(lev != null) {
+					lev.drop();
+					e.setCancelled(true);
+					return;
+				}
 				if(is != null) {
-					if(is.isSimilar(Items.getRespawnItem())) {
+					if(is.isSimilar(Items.RESPAWN_ITEM)) {
 						if(p.getLevel() >= 30) {
 							FileConfiguration fc = Data.CONFIG.getCachedYML();
 							int r = fc.getInt("Player." + p.getUniqueId() + ".Respawns");
@@ -133,7 +147,15 @@ public class Actions implements Listener {
 						}
 					}
 				}
+			} else if(e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
+				//ItemStack is = p.getInventory().getItemInMainHand();
+				if(lev != null) {
+					lev.launch();
+					e.setCancelled(true);
+					return;
+				}
 			}
+			
 		}
 	}
 	
@@ -255,12 +277,14 @@ public class Actions implements Listener {
 	
 	@EventHandler
 	public void onCommand(PlayerCommandPreprocessEvent e) {
+		Player p = e.getPlayer();
 		String cmd = e.getMessage();
 		if(cmd.startsWith("/recall")) e.setMessage(e.getMessage().replaceFirst("/recall", "/ult recall"));
-		if(cmd.startsWith("/chunk")) e.setMessage(e.getMessage().replaceFirst("/chunk", "/ult chunk"));
-		if(cmd.startsWith("/scramble")) e.setMessage(e.getMessage().replaceFirst("/scramble", "/ult scramble"));
-		if(cmd.startsWith("/ults")) e.setMessage(e.getMessage().replaceFirst("/ults", "/ult ults"));
-		if(cmd.startsWith("/soundgen")) e.setMessage(e.getMessage().replaceFirst("/soundgen", "/ult soundgen"));
+		else if(cmd.startsWith("/chunk")) e.setMessage(e.getMessage().replaceFirst("/chunk", "/ult chunk"));
+		else if(cmd.startsWith("/scramble")) e.setMessage(e.getMessage().replaceFirst("/scramble", "/ult scramble"));
+		else if(cmd.startsWith("/ults")) e.setMessage(e.getMessage().replaceFirst("/ults", "/ult ults"));
+		else if(cmd.startsWith("/soundgen")) e.setMessage(e.getMessage().replaceFirst("/soundgen", "/ult soundgen"));
+		else if(cmd.startsWith("/lev") && p.isOp()) p.getInventory().addItem(Items.LEVITATION_ITEM);
 	}
 	
 	public static List<Chunk> convert(List<String> raw) {
@@ -276,6 +300,32 @@ public class Actions implements Listener {
 	public static boolean isFrozen(List<Chunk> chunks, Chunk cc) {
 		for(Chunk c : chunks) if(isSimilar(cc, c)) return true;
 		return false;
+	}
+	
+	@EventHandler
+	public void onBlockClick(BlockPlaceEvent e) {
+		Player p = e.getPlayer();
+		ItemStack is = p.getInventory().getItemInMainHand();
+		if(is != null) {
+			if(is.isSimilar(Items.LEVITATION_ITEM)) {
+				Levitation lev = Levitation.getLevatator(p.getUniqueId());
+				if(lev == null) {
+					Block b = e.getBlockAgainst();
+					lev = new Levitation(p, b);
+					new BukkitRunnable() {
+						public void run() {
+							b.setType(Material.AIR);
+						}
+					}.runTaskLater(Ultimates.getPlugin(), 2L);
+				}
+				e.setCancelled(true);
+			}
+		}
+	}
+	
+	@EventHandler
+	public void onEntityDeath(EntityDeathEvent e) {
+		if(e.getEntity() instanceof Witch) if(Tools.randomNumber(0, 33) == 30) e.getDrops().add(Items.LEVITATION_ITEM);
 	}
 	
 	public static void load() {

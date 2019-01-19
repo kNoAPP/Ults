@@ -13,8 +13,11 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class Items {
+	
+	public static final ItemStack RESPAWN_ITEM = getRespawnItem();
+	public static final ItemStack LEVITATION_ITEM = getLevitationItem();
 
-	public static ItemStack getRespawnItem() {
+	private static ItemStack getRespawnItem() {
 		ItemStack is = new ItemStack(Material.TOTEM_OF_UNDYING, 1);
 		ItemMeta im = is.getItemMeta();
 		im.setDisplayName(ChatColor.GOLD + "Respawn Token");
@@ -24,6 +27,20 @@ public class Items {
 		im.setLore(lores);
 		im.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
 		im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+		is.setItemMeta(im);
+		return is;
+	}
+	
+	private static ItemStack getLevitationItem() {
+		ItemStack is = new ItemStack(Material.TORCH, 1);
+		ItemMeta im = is.getItemMeta();
+		im.setDisplayName(ChatColor.AQUA + "Levitation Wand");
+		List<String> lores = new ArrayList<String>();
+		lores.add(ChatColor.GREEN + "Right-click " + ChatColor.GRAY + "to pick up a block.");
+		lores.add(ChatColor.GREEN + "Right-click " + ChatColor.GRAY + "to drop up a block.");
+		lores.add(ChatColor.YELLOW + "Switch item slots " + ChatColor.GRAY + "to adjust levitation distance.");
+		lores.add(ChatColor.RED + "Left-click " + ChatColor.GRAY + "to launch your block.");
+		im.setLore(lores);
 		is.setItemMeta(im);
 		return is;
 	}
