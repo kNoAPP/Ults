@@ -94,7 +94,7 @@ public class Levitation {
 							if(hitEntities.contains(le)) continue;
 							
 							le.damage(fb.getVelocity().clone().length() * 2.5);
-							le.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, le.getLocation().clone().add(0, 0.8, 0), 3, 0.2F, 0.2F, 0.2F, 0.01);
+							le.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, le.getLocation().clone().add(0, 0.8, 0), 1, 0.2F, 0.2F, 0.2F, 0.01);
 							le.getWorld().playSound(le.getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, 1F, 1F);
 							le.setVelocity(fb.getVelocity().clone().normalize());
 							if(p != null && p.isValid() && p.isOnline()) {

@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.kNoAPP.Ults.Ultimates;
+import com.kNoAPP.Ults.aspects.AFK;
 import com.kNoAPP.Ults.aspects.Message;
 import com.kNoAPP.Ults.data.Data;
 import com.kNoAPP.Ults.utils.Tools;
@@ -38,7 +39,8 @@ public class RecallCommand extends CommandHandler {
 		switch(args.length) {
 		case 0:
 			if(l != null) {
-				if(!recalls.contains(p.getName())) recall(p, l);
+				if(AFK.getAFKs().get(p.getUniqueId()) <= 0) p.sendMessage(Message.RECALL.getMessage("You cannot recall while AFK."));
+				else if(!recalls.contains(p.getName())) recall(p, l);
 				else p.sendMessage(Message.RECALL.getMessage("Already recalling..."));
 				return true;
 			} else p.sendMessage(Message.RECALL.getMessage("You don't have recall location set."));

@@ -7,6 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.kNoAPP.Ults.aspects.AFK;
 import com.kNoAPP.Ults.aspects.Actions;
 import com.kNoAPP.Ults.aspects.Ninja;
 import com.kNoAPP.Ults.commands.Executor;
@@ -62,6 +63,7 @@ public class Ultimates extends JavaPlugin implements Listener {
 	private void importAspects() {
 		getPlugin().getLogger().info("Importing aspects...");
 		Actions.load();
+		AFK.afkLoop();
 		new Ninja();
 		
 		for(Player pl : Bukkit.getOnlinePlayers()) Actions.join(pl);
