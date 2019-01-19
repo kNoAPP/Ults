@@ -47,7 +47,7 @@ public class AFK {
 			public void run() {
 				for(UUID uuid : afk.keySet()) {
 					Player p = Bukkit.getPlayer(uuid);
-					if(p.getGameMode() != GameMode.SURVIVAL) continue;
+					if(p.getGameMode() != GameMode.SURVIVAL || p.getVehicle() != null) continue;
 					int afkTime = afk.get(uuid) - 1;
 					if(afkTime == 0) {
 						p.sendMessage(Message.INFO.getMessage("You are now AFK and cannot be damaged."));

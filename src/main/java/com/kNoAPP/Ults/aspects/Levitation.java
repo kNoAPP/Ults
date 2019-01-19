@@ -14,7 +14,6 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -32,10 +31,17 @@ public class Levitation {
 	private static HashMap<UUID, Levitation> levitators = new HashMap<UUID, Levitation>();
 	
 	private Player p;
+	private LivingEntity le;
 	private ArmorStand as;
 	private BlockData bd;
 	private MaterialData md;
 	private Material m;
+	private int type;
+	
+	private static int BLOCK = 0;
+	private static int ENTITY = 1;
+	
+	private boolean ready = false;
 	private volatile boolean valid = true;
 	
 	public Levitation(Player p, Block b) {
@@ -43,18 +49,31 @@ public class Levitation {
 		this.m = b.getType();
 		this.bd = b.getBlockData();
 		this.md = b.getState().getData();
+		this.type = BLOCK;
+		
+		levitate();
+	}
+	
+	public Levitation(Player p, LivingEntity le) {
+		this.p = p;
+		this.le = le;
+		this.type = ENTITY;
 		
 		levitate();
 	}
 	
 	private void levitate() {
-		as = (ArmorStand) p.getWorld().spawnEntity(p.getLocation().clone().add(p.getLocation().getDirection().normalize().multiply(p.getInventory().getHeldItemSlot()+1)), EntityType.ARMOR_STAND);
+		as = (ArmorStand) p.getWorld().spawnEntity(p.getLocation().clone().add(p.getLocation().getDirection().normalize().multiply(p.getInventory().getHeldItemSlot()*1.5+1)), EntityType.ARMOR_STAND);
 		as.setVisible(false);
 		as.setInvulnerable(true);
 		as.setGravity(false);
-		ItemStack is = new ItemStack(m);
-		is.setData(md);
-		as.setHelmet(is);
+		
+		if(type == BLOCK) {
+			ItemStack is = new ItemStack(m);
+			is.setData(md);
+			as.setHelmet(is);
+		} else as.addPassenger(le);
+		
 		as.setHeadPose(new EulerAngle(0, 0, 0));
 		
 		p.getWorld().playSound(p.getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1F, 1.6F);
@@ -63,23 +82,41 @@ public class Levitation {
 		
 		new BukkitRunnable() {
 			public void run() {
+				ready = true;
+				
 				if(!valid) {
 					this.cancel();
 					return;
 				}
 				
-				as.teleport(p.getLocation().clone().add(p.getLocation().getDirection().normalize().multiply(p.getInventory().getHeldItemSlot()+1)));
+				if(type == ENTITY && (le == null || !le.isValid() || le.isDead())) {
+					drop();
+					this.cancel();
+					return;
+				}
+				
+				if(type == ENTITY) as.removePassenger(le);
+				as.teleport(p.getLocation().clone().add(p.getLocation().getDirection().normalize().multiply(p.getInventory().getHeldItemSlot()*1.5+1)));
+				if(type == ENTITY) as.addPassenger(le);
 			}
-		}.runTaskTimer(Ultimates.getPlugin(), 0L, 1L);
+		}.runTaskTimer(Ultimates.getPlugin(), 1L, 1L);
 	}
 	
 	public void launch() {
-		FallingBlock fb = p.getWorld().spawnFallingBlock(as.getLocation().clone().add(0, 1, 0), bd);
-		as.setHelmet(new ItemStack(Material.AIR));
+		if(!ready) return;
+		
+		Entity e;
+		if(type == BLOCK) {
+			e = p.getWorld().spawnFallingBlock(as.getLocation().clone().add(0, 1, 0), bd);
+			as.setHelmet(new ItemStack(Material.AIR));
+		} else {
+			e = le;
+			as.removePassenger(le);
+		}
 		as.remove();
 		as = null;
 		
-		fb.setVelocity(p.getLocation().clone().getDirection().normalize().multiply((12-p.getInventory().getHeldItemSlot())/4));
+		e.setVelocity(p.getLocation().clone().getDirection().normalize().multiply((12-p.getInventory().getHeldItemSlot())/4));
 		p.getWorld().playSound(p.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1F, 0.6F);
 		
 		stop();
@@ -87,32 +124,38 @@ public class Levitation {
 		new BukkitRunnable() {
 			List<LivingEntity> hitEntities = new ArrayList<LivingEntity>(); 
 			public void run() {
-				if(fb != null && fb.isValid() && !fb.isDead()) {
-					for(Entity e : fb.getNearbyEntities(1.5, 1.5, 1.5)) {
-						if(e instanceof LivingEntity) {
-							LivingEntity le = (LivingEntity) e;
-							if(hitEntities.contains(le)) continue;
+				if(e != null && e.isValid() && !e.isDead() && (!e.isOnGround() && e.getLocation().clone().add(0, -1, 0).getBlock().getType() != Material.WATER)) {
+					for(Entity te : e.getNearbyEntities(1.5, 1.5, 1.5)) {
+						if(te instanceof LivingEntity && e != te) {
+							LivingEntity tle = (LivingEntity) te;
+							if(hitEntities.contains(tle)) continue;
 							
-							le.damage(fb.getVelocity().clone().length() * 2.5);
-							le.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, le.getLocation().clone().add(0, 0.8, 0), 1, 0.2F, 0.2F, 0.2F, 0.01);
-							le.getWorld().playSound(le.getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, 1F, 1F);
-							le.setVelocity(fb.getVelocity().clone().normalize());
+							tle.damage(e.getVelocity().clone().length() * 2.5);
+							tle.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, tle.getLocation().clone().add(0, 0.8, 0), 1, 0.2F, 0.2F, 0.2F, 0.01);
+							tle.getWorld().playSound(tle.getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, 1F, 1F);
+							tle.setVelocity(e.getVelocity().clone().normalize());
 							if(p != null && p.isValid() && p.isOnline()) {
-								EntityDamageByEntityEvent event = new EntityDamageByEntityEvent(p, le, DamageCause.MAGIC, fb.getVelocity().clone().length() * 2.5);
-								le.setLastDamageCause(event);
+								EntityDamageByEntityEvent event = new EntityDamageByEntityEvent(p, tle, DamageCause.MAGIC, e.getVelocity().clone().length() * 2.5);
+								tle.setLastDamageCause(event);
 								Bukkit.getServer().getPluginManager().callEvent(event);
 							}
-							hitEntities.add(le);
+							hitEntities.add(tle);
 						}
 					}
-				}
+				} else this.cancel();
 			}
 		}.runTaskTimer(Ultimates.getPlugin(), 0L, 2L);
+		
 	}
 	
 	public void drop() {
-		p.getWorld().spawnFallingBlock(as.getLocation().clone().add(0, 1, 0), bd);
-		as.setHelmet(new ItemStack(Material.AIR));
+		if(!ready) return;
+		
+		if(type == BLOCK) {
+			p.getWorld().spawnFallingBlock(as.getLocation().clone().add(0, 1, 0), bd);
+			as.setHelmet(new ItemStack(Material.AIR));
+		} else if(le != null && le.isValid() && !le.isDead()) as.removePassenger(le);
+			
 		as.remove();
 		as = null;
 		

@@ -12,6 +12,9 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Witch;
@@ -24,6 +27,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -291,6 +295,27 @@ public class Actions implements Listener {
 					}.runTaskLater(Ultimates.getPlugin(), 2L);
 				}
 				e.setCancelled(true);
+			}
+		}
+	}
+	
+	@EventHandler
+	public void onInteractAt(PlayerInteractAtEntityEvent e) {
+		Player p = e.getPlayer();
+		Entity en = e.getRightClicked();
+		ItemStack is = p.getInventory().getItemInMainHand();
+		if(e.getHand() == EquipmentSlot.HAND) {
+			if(is != null) {
+				if(is.isSimilar(Items.LEVITATION_ITEM)) {
+					if(en instanceof LivingEntity && !(en instanceof Player)) {
+						LivingEntity le = (LivingEntity) en;
+						if(le.getVehicle() == null || !(le.getVehicle() instanceof ArmorStand)) {
+							Levitation lev = Levitation.getLevatator(p.getUniqueId());
+							if(lev == null) lev = new Levitation(p, le);
+							e.setCancelled(true);
+						}
+					}
+				}
 			}
 		}
 	}
