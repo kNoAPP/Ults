@@ -95,7 +95,11 @@ public class Levitation {
 					return;
 				}
 				
-				if(type == ENTITY) as.removePassenger(le);
+				if(type == ENTITY) {
+					if(p.getVehicle() != null && p.getVehicle().equals(le)) le.removePassenger(p);
+					if(as.getPassengers().contains(p)) as.removePassenger(p);
+					as.removePassenger(le);
+				}
 				as.teleport(p.getLocation().clone().add(p.getLocation().getDirection().normalize().multiply(p.getInventory().getHeldItemSlot()*1.5+1)));
 				if(type == ENTITY) as.addPassenger(le);
 			}
@@ -129,17 +133,19 @@ public class Levitation {
 						if(te instanceof LivingEntity && e != te) {
 							LivingEntity tle = (LivingEntity) te;
 							if(hitEntities.contains(tle)) continue;
+							else hitEntities.add(tle);
 							
 							tle.damage(e.getVelocity().clone().length() * 2.5);
 							tle.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, tle.getLocation().clone().add(0, 0.8, 0), 1, 0.2F, 0.2F, 0.2F, 0.01);
 							tle.getWorld().playSound(tle.getLocation(), Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, 1F, 1F);
-							tle.setVelocity(e.getVelocity().clone().normalize());
+							try {
+								tle.setVelocity(e.getVelocity().clone().normalize());
+							} catch(IllegalArgumentException e) {} //Launching a player riding a horse
 							if(p != null && p.isValid() && p.isOnline()) {
 								EntityDamageByEntityEvent event = new EntityDamageByEntityEvent(p, tle, DamageCause.MAGIC, e.getVelocity().clone().length() * 2.5);
 								tle.setLastDamageCause(event);
 								Bukkit.getServer().getPluginManager().callEvent(event);
 							}
-							hitEntities.add(tle);
 						}
 					}
 				} else this.cancel();
