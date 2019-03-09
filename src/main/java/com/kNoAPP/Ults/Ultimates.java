@@ -14,6 +14,7 @@ import com.kNoAPP.Ults.commands.Executor;
 import com.kNoAPP.Ults.data.Data;
 import com.kNoAPP.Ults.data.HikariMedium;
 import com.kNoAPP.Ults.utils.Items;
+import com.kNoAPP.enchants.CustomEnchant;
 
 public class Ultimates extends JavaPlugin implements Listener {
 	
@@ -62,6 +63,7 @@ public class Ultimates extends JavaPlugin implements Listener {
 	
 	private void importAspects() {
 		getPlugin().getLogger().info("Importing aspects...");
+		CustomEnchant.registerEnchantments();
 		Actions.load();
 		AFK.afkLoop();
 		new Ninja();
@@ -76,6 +78,7 @@ public class Ultimates extends JavaPlugin implements Listener {
 	private void exportAspects() {
 		getPlugin().getLogger().info("Exporting aspects...");
 		for(Player pl : Bukkit.getOnlinePlayers()) Actions.leave(pl);
+		CustomEnchant.unregisterEnchantments();
 	}
 	
 	public HikariMedium getMedium() {
