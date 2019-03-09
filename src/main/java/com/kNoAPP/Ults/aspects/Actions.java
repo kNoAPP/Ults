@@ -14,6 +14,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -26,6 +27,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -47,6 +49,7 @@ import com.kNoAPP.Ults.data.Data;
 import com.kNoAPP.Ults.utils.Items;
 import com.kNoAPP.Ults.utils.Serializer;
 import com.kNoAPP.Ults.utils.Tools;
+import com.kNoAPP.enchants.EnchantStomper;
 
 public class Actions implements Listener {
 
@@ -199,6 +202,32 @@ public class Actions implements Listener {
 			Player p = (Player) e.getEntity();
 			RecallCommand.cancel(p.getName());
 		}
+		
+		if(e.getCause() == DamageCause.FALL && e.getEntity() instanceof HumanEntity) {
+			HumanEntity he = (HumanEntity) e.getEntity();
+			if(he.getInventory().getBoots().hasItemMeta() && he.getInventory().getBoots().getItemMeta().hasEnchant(EnchantStomper.STOMPER)) {
+				double dmgFromFall = e.getDamage();
+				if(dmgFromFall > 2) {
+					e.setDamage(2);
+					he.getWorld().playSound(he.getLocation(), Sound.BLOCK_ANVIL_LAND, 1F, 1F);
+					for(Entity en : he.getNearbyEntities(4, 4, 4)) {
+						if(en == he) 
+							continue;
+						
+						if(en instanceof LivingEntity) {
+							if(en instanceof Player) {
+								Player v = (Player) en;
+								if(!v.isSneaking())
+									v.damage(dmgFromFall);
+								else 
+									v.playSound(v.getLocation(), Sound.ENTITY_IRON_GOLEM_HURT, 1F, 1F);
+							} else 
+								((LivingEntity) en).damage(dmgFromFall);
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	@EventHandler
@@ -261,6 +290,7 @@ public class Actions implements Listener {
 		else if(cmd.startsWith("/ults")) e.setMessage(e.getMessage().replaceFirst("/ults", "/ult ults"));
 		else if(cmd.startsWith("/soundgen")) e.setMessage(e.getMessage().replaceFirst("/soundgen", "/ult soundgen"));
 		else if(cmd.startsWith("/lev") && p.isOp()) p.getInventory().addItem(Items.LEVITATION_ITEM);
+		else if(cmd.startsWith("/stomp") && p.isOp()) p.getInventory().getItemInMainHand().addEnchantment(EnchantStomper.STOMPER, 1);
 	}
 	
 	public static List<Chunk> convert(List<String> raw) {
