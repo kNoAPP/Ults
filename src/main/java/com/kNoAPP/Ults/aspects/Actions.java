@@ -43,7 +43,7 @@ import org.bukkit.util.Vector;
 
 import com.kNoAPP.Ults.Ultimates;
 import com.kNoAPP.Ults.commands.RecallCommand;
-import com.kNoAPP.Ults.data.Data;
+import com.kNoAPP.Ults.data.DataHandler;
 import com.kNoAPP.Ults.utils.Items;
 import com.kNoAPP.Ults.utils.Serializer;
 import com.kNoAPP.Ults.utils.Tools;
@@ -57,12 +57,12 @@ public class Actions implements Listener {
 	}
 	
 	public static void join(Player p) {
-		FileConfiguration fc = Data.CONFIG.getCachedYML();
+		FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
 		AFK.getAFKs().put(p.getUniqueId(), 60);
 		p.setGravity(true);
 		if(!fc.isSet("Player." + p.getUniqueId() + ".Respawns")) {
 			fc.set("Player." + p.getUniqueId() + ".Respawns", 1);
-			Data.CONFIG.saveYML(fc);
+			DataHandler.CONFIG.saveYML(fc);
 		}
 		
 		int r = fc.getInt("Player." + p.getUniqueId() + ".Respawns");
@@ -88,11 +88,11 @@ public class Actions implements Listener {
 	@EventHandler
 	public void onDeath(PlayerDeathEvent e) {
 		Player p = e.getEntity();
-		FileConfiguration fc = Data.CONFIG.getCachedYML();
+		FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
 		int r = fc.getInt("Player." + p.getUniqueId() + ".Respawns");
 		if(r > 0) {
 			fc.set("Player." + p.getUniqueId() + ".Respawns", r-1);
-			Data.CONFIG.saveYML(fc);
+			DataHandler.CONFIG.saveYML(fc);
 			
 			e.setKeepInventory(true);
 			e.setKeepLevel(true);
@@ -116,10 +116,10 @@ public class Actions implements Listener {
 				if(is != null) {
 					if(is.isSimilar(Items.RESPAWN_ITEM)) {
 						if(p.getLevel() >= 30) {
-							FileConfiguration fc = Data.CONFIG.getCachedYML();
+							FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
 							int r = fc.getInt("Player." + p.getUniqueId() + ".Respawns");
 							fc.set("Player." + p.getUniqueId() + ".Respawns", r+1);
-							Data.CONFIG.saveYML(fc);
+							DataHandler.CONFIG.saveYML(fc);
 							
 							if(is.getAmount() > 1) {
 								is.setAmount(is.getAmount() - 1);
@@ -153,7 +153,7 @@ public class Actions implements Listener {
 	
 	@EventHandler
     public void onProjHit(ProjectileHitEvent e) {
-		FileConfiguration fc = Data.CONFIG.getCachedYML();
+		FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
 		if(fc.getBoolean("Enable.Bouncing-Projectiles")) {
 	        Projectile proj = e.getEntity();
 	
@@ -241,14 +241,12 @@ public class Actions implements Listener {
 	
 	@EventHandler
 	public void onUnload(ChunkUnloadEvent e) {
-		FileConfiguration fc = Data.CONFIG.getCachedYML();
+		FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
 		List<String> chunksR = fc.getStringList("Chunk.Load");
 		List<Chunk> chunks = convert(chunksR);
 		
-		if(isFrozen(chunks, e.getChunk())) {
-			e.setCancelled(true);
+		if(isFrozen(chunks, e.getChunk()))
 			Ultimates.getPlugin().getLogger().info("Chunk(" + e.getChunk().getX() + ", " + e.getChunk().getZ() + ") tried to unload!");
-		}
 	}
 	
 	@EventHandler
@@ -326,7 +324,7 @@ public class Actions implements Listener {
 	}
 	
 	public static void load() {
-		FileConfiguration fc = Data.CONFIG.getCachedYML();
+		FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
 		List<String> chunksR = fc.getStringList("Chunk.Load");
 		List<Chunk> chunks = convert(chunksR);
 		

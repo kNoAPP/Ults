@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 
 import com.kNoAPP.Ults.aspects.Actions;
 import com.kNoAPP.Ults.aspects.Message;
-import com.kNoAPP.Ults.data.Data;
+import com.kNoAPP.Ults.data.DataHandler;
 import com.kNoAPP.Ults.utils.Serializer;
 
 public class ChunkLoaderCommand extends CommandHandler {
@@ -25,7 +25,7 @@ public class ChunkLoaderCommand extends CommandHandler {
 	@Override
 	public boolean execute(CommandSender sender, String[] args) {
 		Player p = (Player) sender;
-		FileConfiguration fc = Data.CONFIG.getCachedYML();
+		FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
 		List<String> chunksR = fc.getStringList("Chunk.Load");
 		List<Chunk> chunks = Actions.convert(chunksR);
 		switch(args.length) {
@@ -39,7 +39,7 @@ public class ChunkLoaderCommand extends CommandHandler {
 				if(!Actions.isFrozen(chunks, pc)) {
 					chunksR.add(Serializer.compress(p.getLocation()));
 					fc.set("Chunk.Load", chunksR);
-					Data.CONFIG.saveYML(fc);
+					DataHandler.CONFIG.saveYML(fc);
 					
 					p.sendMessage(Message.CHUNK.getMessage("Chunk(" + pc.getX() + ", " + pc.getZ() + ") has been frozen."));
 				} else p.sendMessage(Message.CHUNK.getMessage("Chunk already frozen."));
@@ -48,7 +48,7 @@ public class ChunkLoaderCommand extends CommandHandler {
 				if(Actions.isFrozen(chunks, pc)) {
 					chunksR.remove(getEntry(chunksR, pc));
 					fc.set("Chunk.Load", chunksR);
-					Data.CONFIG.saveYML(fc);
+					DataHandler.CONFIG.saveYML(fc);
 					
 					p.sendMessage(Message.CHUNK.getMessage("Chunk(" + pc.getX() + ", " + pc.getZ() + ") has been unfrozen."));
 				} else p.sendMessage(Message.CHUNK.getMessage("Chunk not frozen."));

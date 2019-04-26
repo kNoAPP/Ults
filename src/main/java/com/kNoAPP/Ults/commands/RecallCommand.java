@@ -16,7 +16,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import com.kNoAPP.Ults.Ultimates;
 import com.kNoAPP.Ults.aspects.AFK;
 import com.kNoAPP.Ults.aspects.Message;
-import com.kNoAPP.Ults.data.Data;
+import com.kNoAPP.Ults.data.DataHandler;
 import com.kNoAPP.Ults.utils.Tools;
 
 public class RecallCommand extends CommandHandler {
@@ -34,7 +34,7 @@ public class RecallCommand extends CommandHandler {
 	@Override
 	public boolean execute(CommandSender sender, String[] args) {
 		Player p = (Player) sender;
-		Location l = (Location) Data.CONFIG.getCachedYML().get("Player." + p.getUniqueId() + ".Recall");
+		Location l = (Location) DataHandler.CONFIG.getCachedYML().get("Player." + p.getUniqueId() + ".Recall");
 		
 		switch(args.length) {
 		case 0:
@@ -49,16 +49,16 @@ public class RecallCommand extends CommandHandler {
 			if(args[0].equalsIgnoreCase("set")) {
 				p.sendMessage(Message.RECALL.getMessage("Your location has been saved."));
 				p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2F, 1F);
-				FileConfiguration fc = Data.CONFIG.getCachedYML();
+				FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
 				fc.set("Player." + p.getUniqueId() + ".Recall", p.getLocation());
-				Data.CONFIG.saveYML(fc);
+				DataHandler.CONFIG.saveYML(fc);
 				return true;
 			} else if(args[0].equalsIgnoreCase("kill")) {
 				p.sendMessage(Message.RECALL.getMessage("Your location has been removed."));
 				p.playSound(p.getLocation(), Sound.ENTITY_BLAZE_AMBIENT, 2F, 1F);
-				FileConfiguration fc = Data.CONFIG.getCachedYML();
+				FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
 				fc.set("Player." + p.getUniqueId() + ".Recall", null);
-				Data.CONFIG.saveYML(fc);
+				DataHandler.CONFIG.saveYML(fc);
 				return true;
 			}
 			return false;
