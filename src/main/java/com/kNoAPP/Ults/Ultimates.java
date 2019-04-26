@@ -13,8 +13,8 @@ import com.kNoAPP.Ults.aspects.Ninja;
 import com.kNoAPP.Ults.commands.Executor;
 import com.kNoAPP.Ults.data.DataHandler;
 import com.kNoAPP.Ults.data.HikariMedium;
+import com.kNoAPP.Ults.enchants.CustomEnchant;
 import com.kNoAPP.Ults.utils.Items;
-import com.kNoAPP.enchants.CustomEnchant;
 
 public class Ultimates extends JavaPlugin implements Listener {
 	

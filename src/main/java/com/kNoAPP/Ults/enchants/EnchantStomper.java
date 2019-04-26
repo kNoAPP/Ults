@@ -1,4 +1,4 @@
-package com.kNoAPP.enchants;
+package com.kNoAPP.Ults.enchants;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;

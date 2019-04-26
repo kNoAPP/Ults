@@ -46,10 +46,10 @@ import org.bukkit.util.Vector;
 import com.kNoAPP.Ults.Ultimates;
 import com.kNoAPP.Ults.commands.RecallCommand;
 import com.kNoAPP.Ults.data.DataHandler;
+import com.kNoAPP.Ults.enchants.EnchantStomper;
 import com.kNoAPP.Ults.utils.Items;
 import com.kNoAPP.Ults.utils.Serializer;
 import com.kNoAPP.Ults.utils.Tools;
-import com.kNoAPP.enchants.EnchantStomper;
 
 public class Actions implements Listener {
 
