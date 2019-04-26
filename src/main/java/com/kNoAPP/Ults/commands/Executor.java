@@ -25,7 +25,6 @@ public class Executor implements CommandExecutor, TabCompleter {
 	public Executor() {
 		commands.put("ult help", new HelpCommand(true, "/ult help", null));
 		commands.put("ult recall", new RecallCommand(false, "/ult recall (set/kill)", null, 0, GenericType.STRING));
-		commands.put("ult chunk", new ChunkLoaderCommand(false, "/ult chunk (freeze/unfreeze)", null, 0, GenericType.STRING));
 		commands.put("ult scramble", new ScrambleCommand(false, "/ult scramble <off/on> [radius] [ticks]", null, 1, GenericType.STRING, GenericType.INTEGER, GenericType.INTEGER));
 		commands.put("ult ults", new UltimateCommand(false, "/ult ults <kindred>", null, GenericType.STRING));
 		commands.put("ult soundgen", new SoundGenCommand(false, "/ult soundgen (on/off)", null, 0, GenericType.STRING));
@@ -51,7 +50,6 @@ public class Executor implements CommandExecutor, TabCompleter {
 						sender.sendMessage(ChatColor.DARK_GREEN + "------------------");
 						sender.sendMessage(Message.HELP.getMessage("/ult help - Show Help"));
 						if(commands.get("ult recall").hasPermission(sender)) sender.sendMessage(Message.HELP.getMessage("/ult recall <set/kill> - Recall to a location"));
-						if(commands.get("ult chunk").hasPermission(sender)) sender.sendMessage(Message.HELP.getMessage("/ult chunk <freeze/unfreeze> - Prevent a chunk from dying"));
 						if(commands.get("ult scramble").hasPermission(sender)) sender.sendMessage(Message.HELP.getMessage("/ult scramble <off/on> <radius> <ticks> - Screw JayJay05"));
 						if(commands.get("ult ults").hasPermission(sender)) sender.sendMessage(Message.HELP.getMessage("/ult ults <kindred> - Cool particle effects"));
 						if(commands.get("ult soundgen").hasPermission(sender)) sender.sendMessage(Message.HELP.getMessage("/ult soundgen (on/off) - Generate custom sounds"));

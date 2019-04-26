@@ -64,7 +64,6 @@ public class Ultimates extends JavaPlugin implements Listener {
 	private void importAspects() {
 		getPlugin().getLogger().info("Importing aspects...");
 		CustomEnchant.registerEnchantments();
-		Actions.load();
 		AFK.afkLoop();
 		new Ninja();
 		

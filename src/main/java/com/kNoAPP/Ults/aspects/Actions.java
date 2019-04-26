@@ -1,6 +1,5 @@
 package com.kNoAPP.Ults.aspects;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Chunk;
@@ -35,7 +34,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -47,7 +45,6 @@ import com.kNoAPP.Ults.Ultimates;
 import com.kNoAPP.Ults.commands.RecallCommand;
 import com.kNoAPP.Ults.data.Data;
 import com.kNoAPP.Ults.utils.Items;
-import com.kNoAPP.Ults.utils.Serializer;
 import com.kNoAPP.Ults.utils.Tools;
 import com.kNoAPP.enchants.EnchantStomper;
 
@@ -269,34 +266,14 @@ public class Actions implements Listener {
 	}
 	
 	@EventHandler
-	public void onUnload(ChunkUnloadEvent e) {
-		FileConfiguration fc = Data.CONFIG.getCachedYML();
-		List<String> chunksR = fc.getStringList("Chunk.Load");
-		List<Chunk> chunks = convert(chunksR);
-		
-		if(isFrozen(chunks, e.getChunk())) {
-			e.setCancelled(true);
-			Ultimates.getPlugin().getLogger().info("Chunk(" + e.getChunk().getX() + ", " + e.getChunk().getZ() + ") tried to unload!");
-		}
-	}
-	
-	@EventHandler
 	public void onCommand(PlayerCommandPreprocessEvent e) {
 		Player p = e.getPlayer();
 		String cmd = e.getMessage();
 		if(cmd.startsWith("/recall")) e.setMessage(e.getMessage().replaceFirst("/recall", "/ult recall"));
-		else if(cmd.startsWith("/chunk")) e.setMessage(e.getMessage().replaceFirst("/chunk", "/ult chunk"));
 		else if(cmd.startsWith("/scramble")) e.setMessage(e.getMessage().replaceFirst("/scramble", "/ult scramble"));
 		else if(cmd.startsWith("/ults")) e.setMessage(e.getMessage().replaceFirst("/ults", "/ult ults"));
 		else if(cmd.startsWith("/soundgen")) e.setMessage(e.getMessage().replaceFirst("/soundgen", "/ult soundgen"));
 		else if(cmd.startsWith("/lev") && p.isOp()) p.getInventory().addItem(Items.LEVITATION_ITEM);
-		else if(cmd.startsWith("/stomp") && p.isOp()) p.getInventory().getItemInMainHand().addEnchantment(EnchantStomper.STOMPER, 1);
-	}
-	
-	public static List<Chunk> convert(List<String> raw) {
-		List<Chunk> chunks = new ArrayList<Chunk>();
-		for(String c : raw) chunks.add(Serializer.expand(c).getChunk());
-		return chunks;
 	}
 	
 	public static boolean isSimilar(Chunk c1, Chunk c2) {
@@ -353,16 +330,5 @@ public class Actions implements Listener {
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent e) {
 		if(e.getEntity() instanceof Witch) if(Tools.randomNumber(0, 33) == 30) e.getDrops().add(Items.LEVITATION_ITEM);
-	}
-	
-	public static void load() {
-		FileConfiguration fc = Data.CONFIG.getCachedYML();
-		List<String> chunksR = fc.getStringList("Chunk.Load");
-		List<Chunk> chunks = convert(chunksR);
-		
-		for(Chunk c : chunks) {
-			c.load();
-			Ultimates.getPlugin().getLogger().info("Chunk(" + c.getX() + ", " + c.getZ() + ") has been loaded!");
-		}
 	}
 }
