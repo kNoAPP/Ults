@@ -77,4 +77,8 @@ public abstract class AtlasCommand implements TabExecutor {
 	protected boolean onCommand(ConsoleCommandSender sender, String[] args) { return true; }
 	
 	protected abstract Formation getFormation();
+	
+	public CommandInfo getInfo() {
+		return info;
+	}
 }
