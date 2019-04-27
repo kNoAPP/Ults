@@ -15,6 +15,7 @@ import com.kNoAPP.Ults.data.DataHandler;
 import com.kNoAPP.Ults.data.HikariMedium;
 import com.kNoAPP.Ults.enchants.CustomEnchant;
 import com.kNoAPP.Ults.utils.Items;
+import com.kNoAPP.atlas.commands.AtlasCommand;
 
 public class Ultimates extends JavaPlugin implements Listener {
 	
@@ -52,6 +53,10 @@ public class Ultimates extends JavaPlugin implements Listener {
 		getCommand("ult").setExecutor(new Executor());
 		
 		addRecipies();
+	}
+	
+	private void registerCommand(AtlasCommand dc) {
+		//TODO Finish
 	}
 	
 	private void addRecipies() {
