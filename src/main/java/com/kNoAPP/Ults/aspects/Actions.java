@@ -1,9 +1,5 @@
 package com.kNoAPP.Ults.aspects;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.bukkit.Chunk;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -35,7 +31,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -44,11 +39,9 @@ import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
 import com.kNoAPP.Ults.Ultimates;
-import com.kNoAPP.Ults.commands.RecallCommand;
 import com.kNoAPP.Ults.data.DataHandler;
 import com.kNoAPP.Ults.enchants.EnchantStomper;
 import com.kNoAPP.Ults.utils.Items;
-import com.kNoAPP.Ults.utils.Serializer;
 import com.kNoAPP.Ults.utils.Tools;
 
 public class Actions implements Listener {
@@ -79,8 +72,6 @@ public class Actions implements Listener {
 	}
 	
 	public static void leave(Player p) {
-		RecallCommand.cancel(p.getName());
-		
 		if(AFK.getAFKs().get(p.getUniqueId()) <= 0) AFK.removeAfk(p);
 		AFK.getAFKs().remove(p.getUniqueId());
 		
@@ -198,11 +189,6 @@ public class Actions implements Listener {
 	
 	@EventHandler
 	public void onDamage(EntityDamageEvent e) {
-		if(e.getEntity() instanceof Player) {
-			Player p = (Player) e.getEntity();
-			RecallCommand.cancel(p.getName());
-		}
-		
 		if(e.getCause() == DamageCause.FALL && e.getEntity() instanceof HumanEntity) {
 			HumanEntity he = (HumanEntity) e.getEntity();
 			if(he.getInventory().getBoots().hasItemMeta() && he.getInventory().getBoots().getItemMeta().hasEnchant(EnchantStomper.STOMPER)) {
@@ -233,7 +219,6 @@ public class Actions implements Listener {
 	@EventHandler
 	public void move(PlayerMoveEvent e) {
 		if(e.getTo().distance(e.getFrom()) > 0.05) {
-			RecallCommand.cancel(e.getPlayer().getName());
 			Player p = e.getPlayer();
 			if(p.getGameMode() == GameMode.SURVIVAL) {
 				/*p.setCollidable(p.getNearbyEntities(8, 8, 8).stream().filter(en -> {
@@ -268,39 +253,10 @@ public class Actions implements Listener {
 		}
 	}
 	
-	@EventHandler
-	public void onUnload(ChunkUnloadEvent e) {
-		FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
-		List<String> chunksR = fc.getStringList("Chunk.Load");
-		List<Chunk> chunks = convert(chunksR);
-		
-		if(isFrozen(chunks, e.getChunk()))
-			Ultimates.getPlugin().getLogger().info("Chunk(" + e.getChunk().getX() + ", " + e.getChunk().getZ() + ") tried to unload!");
-	}
-	
 	public void onCommand(PlayerCommandPreprocessEvent e) {
 		Player p = e.getPlayer();
 		String cmd = e.getMessage();
-		if(cmd.startsWith("/recall")) e.setMessage(e.getMessage().replaceFirst("/recall", "/ult recall"));
-		else if(cmd.startsWith("/scramble")) e.setMessage(e.getMessage().replaceFirst("/scramble", "/ult scramble"));
-		else if(cmd.startsWith("/ults")) e.setMessage(e.getMessage().replaceFirst("/ults", "/ult ults"));
-		else if(cmd.startsWith("/soundgen")) e.setMessage(e.getMessage().replaceFirst("/soundgen", "/ult soundgen"));
-		else if(cmd.startsWith("/lev") && p.isOp()) p.getInventory().addItem(Items.LEVITATION_ITEM);
-	}
-	
-	public static List<Chunk> convert(List<String> raw) {
-		List<Chunk> chunks = new ArrayList<Chunk>();
-		for(String c : raw) chunks.add(Serializer.expand(c).getChunk());
-		return chunks;
-	}
-	
-	public static boolean isSimilar(Chunk c1, Chunk c2) {
-		return (c1.getX() == c2.getX() && c1.getZ() == c2.getZ() && c1.getWorld().getName().equals(c2.getWorld().getName()));
-	}
-	
-	public static boolean isFrozen(List<Chunk> chunks, Chunk cc) {
-		for(Chunk c : chunks) if(isSimilar(cc, c)) return true;
-		return false;
+		if(cmd.startsWith("/lev") && p.isOp()) p.getInventory().addItem(Items.LEVITATION_ITEM);
 	}
 	
 	@EventHandler
@@ -348,16 +304,5 @@ public class Actions implements Listener {
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent e) {
 		if(e.getEntity() instanceof Witch) if(Tools.randomNumber(0, 33) == 30) e.getDrops().add(Items.LEVITATION_ITEM);
-	}
-	
-	public static void load() {
-		FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
-		List<String> chunksR = fc.getStringList("Chunk.Load");
-		List<Chunk> chunks = convert(chunksR);
-		
-		for(Chunk c : chunks) {
-			c.load();
-			Ultimates.getPlugin().getLogger().info("Chunk(" + c.getX() + ", " + c.getZ() + ") has been loaded!");
-		}
 	}
 }

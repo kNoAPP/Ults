@@ -1,8 +1,10 @@
 package com.kNoAPP.Ults.aspects;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
@@ -16,39 +18,28 @@ import com.kNoAPP.Ults.utils.Tools;
 
 public class Scramble {
 
-	public static List<Scramble> active = new ArrayList<Scramble>();
+	public static HashMap<UUID, Scramble> active = new HashMap<UUID, Scramble>();
 	
-	private Player p;
+	private UUID uuid;
 	private int radius;
 	private long rate;
 	
 	public Scramble(Player p, int radius, long rate) {
-		this.p = p;
+		this.uuid = p.getUniqueId();
 		this.radius = radius;
 		this.rate = rate;
 		
-		active.add(this);
+		active.put(uuid, this);
 		init();
 	}
 	
-	public Player getPlayer() {
-		return p;
-	}
-	
-	public int getRadius() {
-		return radius;
-	}
-	
-	public long getRate() {
-		return rate;
-	}
-	
 	public void destroy() {
-		active.remove(this);
+		active.remove(uuid);
 	}
 	
 	private void init() {
-		if(p != null && active.contains(this)) {
+		Player p = Bukkit.getPlayer(uuid);
+		if(p != null && active.containsKey(uuid)) {
 			List<Block> bl = Tools.getNearbyBlocks(p.getLocation(), radius);
 			Block b1 = bl.get(Tools.randomNumber(0, bl.size() - 1));
 			Block b2 = bl.get(Tools.randomNumber(0, bl.size() - 1));
@@ -77,8 +68,7 @@ public class Scramble {
 		}
 	}
 	
-	public static Scramble getScramble(String p) {
-		for(Scramble s : active) if(s.getPlayer().getName().equals(p)) return s;
-		return null;
+	public static Scramble getScramble(UUID uuid) {
+		return active.get(uuid);
 	}
 }

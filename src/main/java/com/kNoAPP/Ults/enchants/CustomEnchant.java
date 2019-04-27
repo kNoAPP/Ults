@@ -1,7 +1,6 @@
 package com.kNoAPP.Ults.enchants;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.Iterator;
 
 import org.bukkit.NamespacedKey;
@@ -55,20 +54,7 @@ public abstract class CustomEnchant extends Enchantment {
 	        f.set(null, true);
 	        Enchantment.registerEnchantment(EnchantStomper.STOMPER);
 	        registered = true;
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	}
-	
-	@SuppressWarnings("unchecked")
-	public static void unregisterEnchantments() {
-		try {
-		    Field keyField = Enchantment.class.getDeclaredField("byKey");
-		 
-		    keyField.setAccessible(true);
-		    HashMap<NamespacedKey, Enchantment> byKey = (HashMap<NamespacedKey, Enchantment>) keyField.get(null);
-		    byKey.remove(EnchantStomper.STOMPER.getKey());
-		} catch (Exception ignored) { }
+	    } catch (Exception ignored) { }
 	}
 	
 	// ItemMeta#hasEnchant() may also work for this function

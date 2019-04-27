@@ -1,69 +1,140 @@
 package com.kNoAPP.Ults.commands;
 
-import java.util.List;
+import java.util.HashSet;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.world.ChunkUnloadEvent;
 
-import com.kNoAPP.Ults.aspects.Actions;
+import com.kNoAPP.Ults.Ultimates;
 import com.kNoAPP.Ults.aspects.Message;
-import com.kNoAPP.Ults.data.DataHandler;
-import com.kNoAPP.Ults.utils.Serializer;
+import com.kNoAPP.Ults.data.DataHandler.JSON;
+import com.kNoAPP.atlas.commands.AtlasCommand;
+import com.kNoAPP.atlas.commands.CommandInfo;
+import com.kNoAPP.atlas.commands.Formation;
+import com.kNoAPP.atlas.commands.Formation.FormationBuilder;
 
-public class ChunkLoaderCommand extends CommandHandler {
+@CommandInfo(name = "chunk", description = "Freeze and unfreeze chunks", usage = "/chunk (freeze | unfreeze)", length = {0, 1})
+public class ChunkLoaderCommand extends AtlasCommand implements Listener {
 	
-	public ChunkLoaderCommand(boolean allowConsole, String usage, String permission, int argMin, GenericType... format) {
-		super(allowConsole, usage, permission, argMin, format);
+	private final Formation FORM = new FormationBuilder().list("freeze", "unfreeze").build();
+	
+	private HashSet<ChunkLocation> frozen = new HashSet<ChunkLocation>();
+	
+	public ChunkLoaderCommand(JSON fromFile) {
+		ChunkLocation[] chunks = (ChunkLocation[]) fromFile.getCachedJSON(ChunkLocation[].class);
+		if(chunks != null) {
+			for(ChunkLocation cl : chunks) {
+				frozen.add(cl);
+				World w = Bukkit.getWorld(cl.getWorld());
+				if(w != null)
+					w.getChunkAt(cl.getX(), cl.getZ()).setForceLoaded(true);
+			}
+		}
 	}
-
-	public ChunkLoaderCommand(boolean allowConsole, String usage, String permission, GenericType... format) {
-		super(allowConsole, usage, permission, format);
+	
+	@Override
+	public boolean onCommand(Player sender, String[] args) {
+		switch(args.length) {
+		case 0:
+			ChunkLocation testFor = new ChunkLocation(sender.getLocation().getChunk());
+			if(frozen.contains(testFor)) sender.sendMessage(Message.CHUNK.getMessage("This chunk is frozen."));
+			else sender.sendMessage(Message.CHUNK.getMessage("This chunk is normal."));
+			return true;
+		case 1:
+			ChunkLocation cl = new ChunkLocation(sender.getLocation().getChunk());
+			if(args[0].equalsIgnoreCase("freeze")) {
+				if(!frozen.contains(cl)) {
+					frozen.add(cl);
+					sender.getLocation().getChunk().setForceLoaded(true);
+					sender.sendMessage(Message.CHUNK.getMessage("Chunk(" + cl.getX() + ", " + cl.getZ() + ") has been frozen."));
+				} else sender.sendMessage(Message.CHUNK.getMessage("Chunk already frozen."));
+			} else if(args[0].equalsIgnoreCase("unfreeze")) {
+				if(frozen.contains(cl)) {
+					frozen.remove(cl);
+					sender.getLocation().getChunk().setForceLoaded(false);
+					
+					sender.sendMessage(Message.CHUNK.getMessage("Chunk(" + cl.getX() + ", " + cl.getZ() + ") has been unfrozen."));
+				} else sender.sendMessage(Message.CHUNK.getMessage("Chunk not frozen."));
+			}
+			return true;
+		}
+		return true;
+	}
+	
+	public void save(JSON toFile) {
+		toFile.saveJSON(frozen.toArray(new ChunkLocation[0]));
 	}
 
 	@Override
-	public boolean execute(CommandSender sender, String[] args) {
-		Player p = (Player) sender;
-		FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
-		List<String> chunksR = fc.getStringList("Chunk.Load");
-		List<Chunk> chunks = Actions.convert(chunksR);
-		switch(args.length) {
-		case 0:
-			if(Actions.isFrozen(chunks, p.getLocation().getChunk())) p.sendMessage(Message.CHUNK.getMessage("This chunk is frozen."));
-			else p.sendMessage(Message.CHUNK.getMessage("This chunk is normal."));
-			return true;
-		case 1:
-			Chunk pc = p.getLocation().getChunk();
-			if(args[0].equalsIgnoreCase("freeze")) {
-				if(!Actions.isFrozen(chunks, pc)) {
-					chunksR.add(Serializer.compress(p.getLocation()));
-					fc.set("Chunk.Load", chunksR);
-					DataHandler.CONFIG.saveYML(fc);
-					
-					p.sendMessage(Message.CHUNK.getMessage("Chunk(" + pc.getX() + ", " + pc.getZ() + ") has been frozen."));
-				} else p.sendMessage(Message.CHUNK.getMessage("Chunk already frozen."));
-				return true;
-			} else if(args[0].equalsIgnoreCase("unfreeze")) {
-				if(Actions.isFrozen(chunks, pc)) {
-					chunksR.remove(getEntry(chunksR, pc));
-					fc.set("Chunk.Load", chunksR);
-					DataHandler.CONFIG.saveYML(fc);
-					
-					p.sendMessage(Message.CHUNK.getMessage("Chunk(" + pc.getX() + ", " + pc.getZ() + ") has been unfrozen."));
-				} else p.sendMessage(Message.CHUNK.getMessage("Chunk not frozen."));
-				return true;
-			}
-			return false;
-		}
-		return false;
+	protected Formation getFormation() {
+		return FORM;
 	}
 	
-	private String getEntry(List<String> raw, Chunk cc) {
-		for(String s : raw) {
-			Chunk c = Serializer.expand(s).getChunk();
-			if(Actions.isSimilar(c, cc)) return s;
+	@EventHandler
+	public void onUnload(ChunkUnloadEvent e) {
+		if(frozen.contains(new ChunkLocation(e.getChunk())))
+			Ultimates.getPlugin().getLogger().info("Chunk(" + e.getChunk().getX() + ", " + e.getChunk().getZ() + ") was forcefully unloaded somehow?");
+	}
+	
+	public static class ChunkLocation {
+		
+		private String world;
+		private int x, z;
+		
+		public ChunkLocation() {}
+		
+		public ChunkLocation(Chunk c) {
+			this.x = c.getX();
+			this.z = c.getZ();
+			this.world = c.getWorld().getName();
 		}
-		return null;
+
+		public int getX() {
+			return x;
+		}
+
+		public void setX(int x) {
+			this.x = x;
+		}
+
+		public int getZ() {
+			return z;
+		}
+
+		public void setZ(int z) {
+			this.z = z;
+		}
+
+		public String getWorld() {
+			return world;
+		}
+
+		public void setWorld(String world) {
+			this.world = world;
+		}
+		
+		@Override
+		public int hashCode() {
+			int hash = 3;
+
+			hash = 19 * hash + (this.world != null ? this.world.hashCode() : 0);
+			hash = 19 * hash + (int) (Double.doubleToLongBits(this.x/16) ^ (Double.doubleToLongBits(this.x/16) >>> 32));
+			hash = 19 * hash + (int) (Double.doubleToLongBits(this.z/16) ^ (Double.doubleToLongBits(this.z/16) >>> 32));
+			return hash;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if(!(obj instanceof ChunkLocation))
+				return false;
+
+			ChunkLocation c = (ChunkLocation) obj;
+			return c.getX() == x && c.getZ() == z && c.getWorld().equals(world);
+		}
 	}
 }

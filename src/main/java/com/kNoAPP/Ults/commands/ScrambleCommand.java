@@ -1,47 +1,48 @@
 package com.kNoAPP.Ults.commands;
 
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.kNoAPP.Ults.aspects.Message;
 import com.kNoAPP.Ults.aspects.Scramble;
+import com.kNoAPP.atlas.commands.AtlasCommand;
+import com.kNoAPP.atlas.commands.CommandInfo;
+import com.kNoAPP.atlas.commands.Formation;
+import com.kNoAPP.atlas.commands.Formation.FormationBuilder;
 
-public class ScrambleCommand extends CommandHandler {
+@CommandInfo(name = "scramble", description = "Screw JayJay05", usage = "/scramble <on | off> (radius) (ticks)", length = {1, 3})
+public class ScrambleCommand extends AtlasCommand {
 	
-	public ScrambleCommand(boolean allowConsole, String usage, String permission, int argMin, GenericType... format) {
-		super(allowConsole, usage, permission, argMin, format);
-	}
-
-	public ScrambleCommand(boolean allowConsole, String usage, String permission, GenericType... format) {
-		super(allowConsole, usage, permission, format);
-	}
+	private static final Formation FORM = new FormationBuilder().list("on", "off").number(5, 20, 5).number(2, 10, 2).build();
 
 	@Override
-	public boolean execute(CommandSender sender, String[] args) {
-		Player p = (Player) sender;
-		if(p.getName().equals("JayJay05")) p.sendMessage(Message.SCRAMBLE.getMessage("Screw off Jay. >:("));
+	public boolean onCommand(Player sender, String[] args) {
+		if(sender.getName().equals("JayJay05")) 
+			sender.sendMessage(Message.SCRAMBLE.getMessage("Screw off Jay. >:("));
 			
 		switch(args.length) {
 		case 1:
 			if(args[0].equalsIgnoreCase("off")) {
-				Scramble s = Scramble.getScramble(p.getName());
+				Scramble s = Scramble.getScramble(sender.getUniqueId());
 				if(s != null) {
 					s.destroy();
-					p.sendMessage(Message.SCRAMBLE.getMessage("Scramble off."));
-				} else p.sendMessage(Message.SCRAMBLE.getMessage("No scramble engaged!"));
-				return true;
+					sender.sendMessage(Message.SCRAMBLE.getMessage("Scramble off."));
+				} else sender.sendMessage(Message.SCRAMBLE.getMessage("No scramble engaged!"));
 			}
-			return false;
-		case 3:
-			if(args[0].equalsIgnoreCase("on") && Scramble.getScramble(p.getName()) == null) {
-				int radius = Integer.parseInt(args[1]);
-				long rate = Long.parseLong(args[2]);
-				if(rate == 0) rate = 1L;
-				new Scramble(p, radius, rate);
-				p.sendMessage(Message.SCRAMBLE.getMessage("Scramble on with settings <" + radius + ", " + rate + ">."));
-			} else p.sendMessage(Message.SCRAMBLE.getMessage("Scramble already active."));
 			return true;
+		case 3:
+			if(args[0].equalsIgnoreCase("on") && Scramble.getScramble(sender.getUniqueId()) == null) {
+				int radius = (int) Double.parseDouble(args[1]);
+				long rate = (long) Double.parseDouble(args[2]);
+				if(rate == 0) rate = 1L;
+				new Scramble(sender, radius, rate);
+				sender.sendMessage(Message.SCRAMBLE.getMessage("Scramble on with settings <" + radius + ", " + rate + ">."));
+			} else sender.sendMessage(Message.SCRAMBLE.getMessage("Scramble already active."));
 		}
-		return false;
+		return true;
+	}
+
+	@Override
+	protected Formation getFormation() {
+		return FORM;
 	}
 }

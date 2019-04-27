@@ -1,16 +1,21 @@
 package com.kNoAPP.Ults.commands;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.kNoAPP.Ults.Ultimates;
@@ -18,61 +23,56 @@ import com.kNoAPP.Ults.aspects.AFK;
 import com.kNoAPP.Ults.aspects.Message;
 import com.kNoAPP.Ults.data.DataHandler;
 import com.kNoAPP.Ults.utils.Tools;
+import com.kNoAPP.atlas.commands.AtlasCommand;
+import com.kNoAPP.atlas.commands.CommandInfo;
+import com.kNoAPP.atlas.commands.Formation;
+import com.kNoAPP.atlas.commands.Formation.FormationBuilder;
 
-public class RecallCommand extends CommandHandler {
+@CommandInfo(name = "recall", description = "Recall to a previously set location", usage = "/recall (set | kill)", length = {0, 1})
+public class RecallCommand extends AtlasCommand implements Listener {
 	
-	private static List<String> recalls = new ArrayList<String>();
+	private static final Formation FORM = new FormationBuilder().list("set", "kill").build();
 	
-	public RecallCommand(boolean allowConsole, String usage, String permission, int argMin, GenericType... format) {
-		super(allowConsole, usage, permission, argMin, format);
-	}
-
-	public RecallCommand(boolean allowConsole, String usage, String permission, GenericType... format) {
-		super(allowConsole, usage, permission, format);
-	}
+	private HashSet<UUID> recalls = new HashSet<UUID>();
 
 	@Override
-	public boolean execute(CommandSender sender, String[] args) {
-		Player p = (Player) sender;
-		Location l = (Location) DataHandler.CONFIG.getCachedYML().get("Player." + p.getUniqueId() + ".Recall");
+	public boolean onCommand(Player sender, String[] args) {
+		Location l = (Location) DataHandler.CONFIG.getCachedYML().get("Player." + sender.getUniqueId() + ".Recall");
 		
 		switch(args.length) {
 		case 0:
 			if(l != null) {
-				if(AFK.getAFKs().get(p.getUniqueId()) <= 0) p.sendMessage(Message.RECALL.getMessage("You cannot recall while AFK."));
-				else if(!recalls.contains(p.getName())) recall(p, l);
-				else p.sendMessage(Message.RECALL.getMessage("Already recalling..."));
-				return true;
-			} else p.sendMessage(Message.RECALL.getMessage("You don't have recall location set."));
-			return false;
+				if(AFK.getAFKs().get(sender.getUniqueId()) <= 0) sender.sendMessage(Message.RECALL.getMessage("You cannot recall while AFK."));
+				else if(!recalls.contains(sender.getUniqueId())) recall(sender, l);
+				else sender.sendMessage(Message.RECALL.getMessage("Already recalling..."));
+			} else sender.sendMessage(Message.RECALL.getMessage("You don't have recall location set."));
+			return true;
 		case 1:
 			if(args[0].equalsIgnoreCase("set")) {
-				p.sendMessage(Message.RECALL.getMessage("Your location has been saved."));
-				p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2F, 1F);
+				sender.sendMessage(Message.RECALL.getMessage("Your location has been saved."));
+				sender.playSound(sender.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2F, 1F);
 				FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
-				fc.set("Player." + p.getUniqueId() + ".Recall", p.getLocation());
+				fc.set("Player." + sender.getUniqueId() + ".Recall", sender.getLocation());
 				DataHandler.CONFIG.saveYML(fc);
-				return true;
 			} else if(args[0].equalsIgnoreCase("kill")) {
-				p.sendMessage(Message.RECALL.getMessage("Your location has been removed."));
-				p.playSound(p.getLocation(), Sound.ENTITY_BLAZE_AMBIENT, 2F, 1F);
+				sender.sendMessage(Message.RECALL.getMessage("Your location has been removed."));
+				sender.playSound(sender.getLocation(), Sound.ENTITY_BLAZE_AMBIENT, 2F, 1F);
 				FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
-				fc.set("Player." + p.getUniqueId() + ".Recall", null);
+				fc.set("Player." + sender.getUniqueId() + ".Recall", null);
 				DataHandler.CONFIG.saveYML(fc);
-				return true;
 			}
-			return false;
+			return true;
 		}
-		return false;
+		return true;
 	}
 	
 	private void recall(Player p, Location l) {
-		recalls.add(p.getName());
+		recalls.add(p.getUniqueId());
 		
 		new BukkitRunnable() {
 			int t = 0;
 			public void run() {
-				if(recalls.contains(p.getName())) {
+				if(recalls.contains(p.getUniqueId())) {
 					double tl = 8 - ((double)t/20);
 					
 					Tools.sendActionbar(p, Tools.generateWaitBar((((double)t/20)/8) * 100, 20, ChatColor.GOLD, ChatColor.GRAY) + " " + ChatColor.GREEN + Tools.round(tl, 1) + "s");
@@ -109,7 +109,7 @@ public class RecallCommand extends CommandHandler {
 			    				l.subtract(x, y, z);
 			    			}
 						}
-						recalls.remove(p.getName());
+						recalls.remove(p.getUniqueId());
 						this.cancel();
 					} else {
 						t++;
@@ -123,7 +123,31 @@ public class RecallCommand extends CommandHandler {
 		}.runTaskTimer(Ultimates.getPlugin(), 0L, 1L);
 	}
 	
-	public static void cancel(String name) {
-		recalls.remove(name);
+	public void cancel(UUID uuid) {
+		recalls.remove(uuid);
+	}
+
+	@Override
+	protected Formation getFormation() {
+		return FORM;
+	}
+	
+	@EventHandler
+	public void onleave(PlayerQuitEvent e) {
+		cancel(e.getPlayer().getUniqueId());
+	}
+	
+	@EventHandler
+	public void onDamage(EntityDamageEvent e) {
+		if(e.getEntity() instanceof Player) {
+			Player p = (Player) e.getEntity();
+			cancel(p.getUniqueId());
+		}
+	}
+	
+	@EventHandler
+	public void move(PlayerMoveEvent e) {
+		if(e.getTo().distance(e.getFrom()) > 0.05)
+			cancel(e.getPlayer().getUniqueId());
 	}
 }

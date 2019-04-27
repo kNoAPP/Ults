@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 public abstract class AtlasCommand implements TabExecutor {
 
 	private static final String NO_PERMISSION = ChatColor.GOLD + "Permission> " + ChatColor.GRAY + "You are missing Node [" + ChatColor.DARK_AQUA + "%perm%" + ChatColor.GRAY + "]!";
-	private static final String USAGE = ChatColor.GOLD + "Usage> %usage%";
+	private static final String USAGE = ChatColor.GOLD + "Usage> " + ChatColor.GRAY + "%usage%";
 	
 	private CommandInfo info = getClass().getAnnotation(CommandInfo.class);
 
@@ -47,6 +47,33 @@ public abstract class AtlasCommand implements TabExecutor {
 			return true;
 		}
 		
+		Formation form = getFormation();
+		for(int i=0; i<args.length; i++) {
+			int type = form.getArgType(i);
+			switch(type) {
+			case Formation.PLAYER:
+				break;
+			case Formation.NUMBER:
+				try {
+					Double.parseDouble(args[i]);
+				} catch(NumberFormatException e) {
+					alertUsage(sender, info.usage());
+					return true;
+				}
+				break;
+			case Formation.LIST:
+				if(!form.getList(i).stream().anyMatch(args[i]::equalsIgnoreCase)) {
+					alertUsage(sender, info.usage());
+					return true;
+				}
+				break;
+			default:
+				alertUsage(sender, info.usage());
+				return true;
+			}
+		}
+		
+		
 		if(sender instanceof Player) 
 			return onCommand((Player) sender, args);
 		if(sender instanceof ConsoleCommandSender)
@@ -73,8 +100,15 @@ public abstract class AtlasCommand implements TabExecutor {
 		return false;
 	}
 	
-	protected boolean onCommand(Player sender, String[] args) { return true; }
-	protected boolean onCommand(ConsoleCommandSender sender, String[] args) { return true; }
+	protected boolean onCommand(Player sender, String[] args) {
+		sender.sendMessage(ChatColor.GOLD + "Warn> " + ChatColor.RED + "This command may only be run by the console.");
+		return true; 
+	}
+	
+	protected boolean onCommand(ConsoleCommandSender sender, String[] args) {
+		sender.sendMessage(ChatColor.GOLD + "Warn> " + ChatColor.RED + "This command may only be run by players.");
+		return true; 
+	}
 	
 	protected abstract Formation getFormation();
 	

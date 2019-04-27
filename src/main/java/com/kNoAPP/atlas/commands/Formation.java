@@ -44,7 +44,7 @@ public class Formation {
 			return null;
 
 		List<String> out = new ArrayList<String>();
-		for(double d = params[0]; d < params[1]; d += params[2])
+		for(double d = params[0]; d <= params[1]; d += params[2])
 			out.add(d == Math.floor(d) ? String.valueOf((int) d): String.valueOf(d));
 		return out;
 	}

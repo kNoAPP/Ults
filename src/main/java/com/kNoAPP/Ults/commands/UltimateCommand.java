@@ -1,29 +1,32 @@
 package com.kNoAPP.Ults.commands;
 
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.kNoAPP.Ults.events.Kindred;
 import com.kNoAPP.Ults.utils.Tools;
+import com.kNoAPP.atlas.commands.AtlasCommand;
+import com.kNoAPP.atlas.commands.CommandInfo;
+import com.kNoAPP.atlas.commands.Formation;
+import com.kNoAPP.atlas.commands.Formation.FormationBuilder;
 
-public class UltimateCommand extends CommandHandler {
+@CommandInfo(name = "ult", description = "Cool particle effects", usage = "/ult <kindred>", length = {1})
+public class UltimateCommand extends AtlasCommand {
 	
-	public UltimateCommand(boolean allowConsole, String usage, String permission, int argMin, GenericType... format) {
-		super(allowConsole, usage, permission, argMin, format);
-	}
+	private static final Formation FORM = new FormationBuilder().list("kindred").build();
 
-	public UltimateCommand(boolean allowConsole, String usage, String permission, GenericType... format) {
-		super(allowConsole, usage, permission, format);
+	@Override
+	public boolean onCommand(Player sender, String[] args) {
+		switch(args.length) {
+		case 1:
+			if(args[0].equalsIgnoreCase("kindred")) 
+				new Kindred(Tools.floor(Tools.getTargetBlock(sender, 5)).getLocation());
+			return true;
+		}
+		return true;
 	}
 
 	@Override
-	public boolean execute(CommandSender sender, String[] args) {
-		Player p = (Player) sender;
-		switch(args.length) {
-		case 1:
-			if(args[0].equalsIgnoreCase("kindred")) new Kindred(Tools.floor(Tools.getTargetBlock(p, 5)).getLocation());
-			return true;
-		}
-		return false;
+	protected Formation getFormation() {
+		return FORM;
 	}
 }

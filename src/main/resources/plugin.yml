@@ -3,6 +3,3 @@ author: kNoAPP
 main: com.kNoAPP.Ults.Ultimates
 version: 1.0
 api-version: 1.13
-commands:
-    ult:
-        description: Ultimate help command

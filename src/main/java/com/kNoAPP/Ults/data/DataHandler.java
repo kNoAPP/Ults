@@ -5,18 +5,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonIOException;
 import com.kNoAPP.Ults.Ultimates;
 
 /**
@@ -37,6 +37,7 @@ public class DataHandler {
 	
 	//Where to save, what to call
 	public static YML CONFIG = new YML("/config.yml");
+	public static JSON FROZEN_CHUNKS = new JSON("/frozenchunks.json");
 	
 	protected String subtree, filename, outerPath;
 	protected File file;
@@ -110,6 +111,10 @@ public class DataHandler {
 		private String cached;
 		private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		
+		public JSON(String filename) {
+			super(filename);
+		}
+		
 		/**
 		 * A base constructor for each file type
 		 * @param subtree - Where to drop/access the configuration file (starting from the program run location)
@@ -117,10 +122,6 @@ public class DataHandler {
 		 */
 		public JSON(String subtree, String filename) {
 			super(subtree, filename);
-		}
-		
-		public JSON(String innerPath) {
-			super(innerPath);
 		}
 		
 		/**
@@ -163,11 +164,11 @@ public class DataHandler {
 		 * @param obj - Any JSON-Compatible Object
 		 */
 		public void saveJSON(Object obj) {
+			cached = gson.toJson(obj);
 			try {
-				gson.toJson(obj, new FileWriter(file));
-			} catch(JsonIOException e) {
-				e.printStackTrace();
+				FileUtils.writeStringToFile(file, cached, Charset.forName("UTF-8"));
 			} catch(IOException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

@@ -10,14 +10,18 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.kNoAPP.Ults.aspects.AFK;
 import com.kNoAPP.Ults.aspects.Actions;
 import com.kNoAPP.Ults.aspects.Ninja;
-import com.kNoAPP.Ults.commands.Executor;
+import com.kNoAPP.Ults.commands.ChunkLoaderCommand;
+import com.kNoAPP.Ults.commands.HelpCommand;
+import com.kNoAPP.Ults.commands.RecallCommand;
+import com.kNoAPP.Ults.commands.ScrambleCommand;
+import com.kNoAPP.Ults.commands.SoundGenCommand;
+import com.kNoAPP.Ults.commands.UltimateCommand;
 import com.kNoAPP.Ults.data.DataHandler;
 import com.kNoAPP.Ults.data.HikariMedium;
 import com.kNoAPP.Ults.enchants.CustomEnchant;
@@ -25,9 +29,10 @@ import com.kNoAPP.Ults.utils.Items;
 import com.kNoAPP.atlas.commands.AtlasCommand;
 import com.kNoAPP.atlas.commands.CommandInfo;
 
-public class Ultimates extends JavaPlugin implements Listener {
+public class Ultimates extends JavaPlugin {
 	
 	private HikariMedium medium;
+	private ChunkLoaderCommand clc;
 	private static Ultimates plugin;
 	
 	private boolean failed = false;
@@ -55,16 +60,28 @@ public class Ultimates extends JavaPlugin implements Listener {
 	}
 	
 	private void register() {
-		getServer().getPluginManager().registerEvents(this, this);
+		clc = new ChunkLoaderCommand(DataHandler.FROZEN_CHUNKS);
+		RecallCommand rc = new RecallCommand();
+		
+		getServer().getPluginManager().registerEvents(clc, this);
+		getServer().getPluginManager().registerEvents(rc, this);
 		getServer().getPluginManager().registerEvents(new Actions(), this);
 		
-		getCommand("ult").setExecutor(new Executor());
+		registerCommand(clc);
+		registerCommand(new HelpCommand());
+		registerCommand(rc);
+		registerCommand(new ScrambleCommand());
+		registerCommand(new SoundGenCommand());
+		registerCommand(new UltimateCommand());
 		
 		addRecipies();
 	}
 	
 	private void registerCommand(AtlasCommand dc) {
 		CommandInfo ci = dc.getInfo();
+		if(ci == null)
+			throw new UnsupportedOperationException("CommandInfo annotation is missing!");	
+		
 		PluginCommand pc = getCommand(ci.name());
 		if(pc == null) {
 			try {
@@ -74,13 +91,13 @@ public class Ultimates extends JavaPlugin implements Listener {
 				
 				pc.setAliases(Arrays.asList(ci.aliases()));
 				pc.setDescription(ci.description());
-				pc.setDescription(ci.description());
+				pc.setUsage(ci.usage());
 				
 				Field cmdMap = Bukkit.getPluginManager().getClass().getDeclaredField("commandMap");
                 cmdMap.setAccessible(true);
                 CommandMap map = (CommandMap) cmdMap.get(Bukkit.getPluginManager());
 
-                map.register(ci.name(), pc);
+                map.register(getPlugin().getName(), pc);
 			} catch (NoSuchMethodException | IllegalAccessException |
                     InstantiationException | InvocationTargetException |
                     NoSuchFieldException e) {
@@ -129,6 +146,7 @@ public class Ultimates extends JavaPlugin implements Listener {
 		if(failed)
 			return;
 		
+		clc.save(DataHandler.FROZEN_CHUNKS);
 		getPlugin().getLogger().info("Exporting data files...");
 	}
 	
@@ -138,7 +156,6 @@ public class Ultimates extends JavaPlugin implements Listener {
 		
 		getPlugin().getLogger().info("Exporting aspects...");
 		for(Player pl : Bukkit.getOnlinePlayers()) Actions.leave(pl);
-		CustomEnchant.unregisterEnchantments();
 	}
 	
 	public HikariMedium getMedium() {
