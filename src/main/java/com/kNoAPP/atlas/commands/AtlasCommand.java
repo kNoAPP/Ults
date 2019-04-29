@@ -20,8 +20,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class AtlasCommand implements TabExecutor {
 
-	private static final String NO_PERMISSION = ChatColor.GOLD + "Permission> " + ChatColor.GRAY + "You are missing Node [" + ChatColor.DARK_AQUA + "%perm%" + ChatColor.GRAY + "]!";
-	private static final String USAGE = ChatColor.GOLD + "Usage> " + ChatColor.GRAY + "%usage%";
+	private static final String NO_PERMISSION = ChatColor.GOLD + "Permission> " + ChatColor.GRAY + "You are missing permission " + ChatColor.DARK_AQUA + "%perm%" + ChatColor.GRAY + "!";
+	private static final String USAGE = ChatColor.GOLD + "Try> " + ChatColor.GRAY + "%usage%";
 	
 	private CommandInfo info = getClass().getAnnotation(CommandInfo.class);
 
@@ -62,7 +62,7 @@ public abstract class AtlasCommand implements TabExecutor {
 		
 		int lastMatchedArg = getFormation().lastMatch(args);
 		if(lastMatchedArg < args.length - 1) {
-			if(info.match() <= lastMatchedArg)
+			if(info.argMatch() <= lastMatchedArg)
 				alertUsage(sender, info.usage());
 			return true;
 		}
