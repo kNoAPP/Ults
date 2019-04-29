@@ -190,7 +190,7 @@ public class Actions implements Listener {
 	public void onDamage(EntityDamageEvent e) {
 		if(e.getCause() == DamageCause.FALL && e.getEntity() instanceof HumanEntity) {
 			HumanEntity he = (HumanEntity) e.getEntity();
-			if(he.getInventory().getBoots().hasItemMeta() && he.getInventory().getBoots().getItemMeta().hasEnchant(EnchantStomper.STOMPER)) {
+			if(he.getInventory().getBoots() != null && he.getInventory().getBoots().hasItemMeta() && he.getInventory().getBoots().getItemMeta().hasEnchant(EnchantStomper.STOMPER)) {
 				double dmgFromFall = e.getDamage();
 				if(dmgFromFall > 2) {
 					e.setDamage(2);

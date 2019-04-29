@@ -30,19 +30,18 @@ public abstract class AtlasCommand implements TabExecutor {
 		if(!info.permission().equals("") && !sender.hasPermission(info.permission()))
 			return null;
 		
-		String[] noLabel = Arrays.copyOfRange(args, 1, args.length);
 		Formation form = getFormation();
-		if(form.isMatch(noLabel)) {
-			int type = form.getArgType(noLabel.length);
+		if(form.lastMatch(args) >= args.length - 2) {
+			int type = form.getArgType(args.length - 1);
 			switch(type) {
 			case Formation.PLAYER:
 				return sender instanceof Player ? form.getPlayer((Player) sender) : form.getPlayer();
 			case Formation.NUMBER:
-				return form.getNumber(noLabel.length);
+				return form.getNumber(args.length - 1);
 			case Formation.LIST:
-				return form.getList(noLabel.length);
+				return form.getList(args.length - 1);
 			case Formation.STRING:
-				return form.getString(noLabel.length);
+				return form.getString(args.length - 1);
 			default:
 				return null;
 			}
@@ -119,7 +118,7 @@ public abstract class AtlasCommand implements TabExecutor {
 			try {
 				Constructor<PluginCommand> cons = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
 				cons.setAccessible(true);
-				pc = cons.newInstance(info.name(), this);
+				pc = cons.newInstance(info.name(), plugin);
 				
 				pc.setAliases(Arrays.asList(info.aliases()));
 				pc.setDescription(info.description());
