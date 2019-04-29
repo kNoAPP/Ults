@@ -1,13 +1,22 @@
 package com.kNoAPP.atlas.commands;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class AtlasCommand implements TabExecutor {
 
@@ -114,5 +123,42 @@ public abstract class AtlasCommand implements TabExecutor {
 	
 	public CommandInfo getInfo() {
 		return info;
+	}
+	
+	public void registerCommand(JavaPlugin plugin) {
+		if(info == null)
+			throw new UnsupportedOperationException("CommandInfo annotation is missing!");	
+		
+		PluginCommand pc = plugin.getCommand(info.name());
+		if(pc == null) {
+			try {
+				Constructor<PluginCommand> cons = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
+				cons.setAccessible(true);
+				pc = cons.newInstance(info.name(), this);
+				
+				pc.setAliases(Arrays.asList(info.aliases()));
+				pc.setDescription(info.description());
+				pc.setUsage(info.usage());
+				
+				Field cmdMap = Bukkit.getPluginManager().getClass().getDeclaredField("commandMap");
+                cmdMap.setAccessible(true);
+                CommandMap map = (CommandMap) cmdMap.get(Bukkit.getPluginManager());
+
+                map.register(plugin.getName(), pc);
+			} catch (NoSuchMethodException | IllegalAccessException |
+                    InstantiationException | InvocationTargetException |
+                    NoSuchFieldException e) {
+                e.printStackTrace();
+                plugin.getLogger().warning("Failed to load command: /" + info.name() + "! Command is not active.");
+                return;
+            }
+			
+			pc.setExecutor(this);
+			pc.setTabCompleter(this);
+			
+			plugin.getLogger().info("Successfully loaded command: /" + info.name() + ".");
+			for(String alias : info.aliases())
+				plugin.getLogger().info("Successfully loaded alias: /" + alias + ".");
+		}
 	}
 }
