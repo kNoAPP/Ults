@@ -253,6 +253,7 @@ public class Actions implements Listener {
 		}
 	}
 	
+	@EventHandler
 	public void onCommand(PlayerCommandPreprocessEvent e) {
 		Player p = e.getPlayer();
 		String cmd = e.getMessage();
