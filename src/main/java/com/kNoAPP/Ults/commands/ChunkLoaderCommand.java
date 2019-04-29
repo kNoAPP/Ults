@@ -12,11 +12,11 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 
 import com.kNoAPP.Ults.Ultimates;
 import com.kNoAPP.Ults.aspects.Message;
-import com.kNoAPP.Ults.data.DataHandler.JSON;
 import com.kNoAPP.atlas.commands.AtlasCommand;
 import com.kNoAPP.atlas.commands.CommandInfo;
 import com.kNoAPP.atlas.commands.Formation;
 import com.kNoAPP.atlas.commands.Formation.FormationBuilder;
+import com.kNoAPP.atlas.data.DataHandler.JSON;
 
 @CommandInfo(name = "chunk", description = "Freeze and unfreeze chunks", usage = "/chunk (freeze | unfreeze)", length = {0, 1})
 public class ChunkLoaderCommand extends AtlasCommand implements Listener {

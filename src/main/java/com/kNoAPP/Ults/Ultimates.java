@@ -22,14 +22,18 @@ import com.kNoAPP.Ults.commands.RecallCommand;
 import com.kNoAPP.Ults.commands.ScrambleCommand;
 import com.kNoAPP.Ults.commands.SoundGenCommand;
 import com.kNoAPP.Ults.commands.UltimateCommand;
-import com.kNoAPP.Ults.data.DataHandler;
-import com.kNoAPP.Ults.data.HikariMedium;
 import com.kNoAPP.Ults.enchants.CustomEnchant;
 import com.kNoAPP.Ults.utils.Items;
 import com.kNoAPP.atlas.commands.AtlasCommand;
 import com.kNoAPP.atlas.commands.CommandInfo;
+import com.kNoAPP.atlas.data.HikariMedium;
+import com.kNoAPP.atlas.data.DataHandler.JSON;
+import com.kNoAPP.atlas.data.DataHandler.YML;
 
 public class Ultimates extends JavaPlugin {
+	
+	public static YML CONFIG;
+	public static JSON FROZEN_CHUNKS;
 	
 	private HikariMedium medium;
 	private ChunkLoaderCommand clc;
@@ -60,7 +64,10 @@ public class Ultimates extends JavaPlugin {
 	}
 	
 	private void register() {
-		clc = new ChunkLoaderCommand(DataHandler.FROZEN_CHUNKS);
+		CONFIG = new YML(this, "/config.yml");
+		FROZEN_CHUNKS = new JSON(this, "/frozenchunks.json");
+		
+		clc = new ChunkLoaderCommand(FROZEN_CHUNKS);
 		RecallCommand rc = new RecallCommand();
 		
 		getServer().getPluginManager().registerEvents(clc, this);
@@ -121,7 +128,7 @@ public class Ultimates extends JavaPlugin {
 	
 	private void importData() {
 		getPlugin().getLogger().info("Importing data files...");
-		FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
+		FileConfiguration fc = CONFIG.getCachedYML();
 		try {
 			medium = new HikariMedium(fc.getString("MySQL.host"), fc.getInt("MySQL.port"), fc.getString("MySQL.database"), fc.getString("MySQL.username"), fc.getString("MySQL.password"));
 		} catch(Exception e) {
@@ -146,7 +153,7 @@ public class Ultimates extends JavaPlugin {
 		if(failed)
 			return;
 		
-		clc.save(DataHandler.FROZEN_CHUNKS);
+		clc.save(FROZEN_CHUNKS);
 		getPlugin().getLogger().info("Exporting data files...");
 	}
 	

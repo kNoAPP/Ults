@@ -39,7 +39,6 @@ import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
 import com.kNoAPP.Ults.Ultimates;
-import com.kNoAPP.Ults.data.DataHandler;
 import com.kNoAPP.Ults.enchants.EnchantStomper;
 import com.kNoAPP.Ults.utils.Items;
 import com.kNoAPP.Ults.utils.Tools;
@@ -53,12 +52,12 @@ public class Actions implements Listener {
 	}
 	
 	public static void join(Player p) {
-		FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
+		FileConfiguration fc = Ultimates.CONFIG.getCachedYML();
 		AFK.getAFKs().put(p.getUniqueId(), 60);
 		p.setGravity(true);
 		if(!fc.isSet("Player." + p.getUniqueId() + ".Respawns")) {
 			fc.set("Player." + p.getUniqueId() + ".Respawns", 1);
-			DataHandler.CONFIG.saveYML(fc);
+			Ultimates.CONFIG.saveYML(fc);
 		}
 		
 		int r = fc.getInt("Player." + p.getUniqueId() + ".Respawns");
@@ -82,11 +81,11 @@ public class Actions implements Listener {
 	@EventHandler
 	public void onDeath(PlayerDeathEvent e) {
 		Player p = e.getEntity();
-		FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
+		FileConfiguration fc = Ultimates.CONFIG.getCachedYML();
 		int r = fc.getInt("Player." + p.getUniqueId() + ".Respawns");
 		if(r > 0) {
 			fc.set("Player." + p.getUniqueId() + ".Respawns", r-1);
-			DataHandler.CONFIG.saveYML(fc);
+			Ultimates.CONFIG.saveYML(fc);
 			
 			e.setKeepInventory(true);
 			e.setKeepLevel(true);
@@ -110,10 +109,10 @@ public class Actions implements Listener {
 				if(is != null) {
 					if(is.isSimilar(Items.RESPAWN_ITEM)) {
 						if(p.getLevel() >= 30) {
-							FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
+							FileConfiguration fc = Ultimates.CONFIG.getCachedYML();
 							int r = fc.getInt("Player." + p.getUniqueId() + ".Respawns");
 							fc.set("Player." + p.getUniqueId() + ".Respawns", r+1);
-							DataHandler.CONFIG.saveYML(fc);
+							Ultimates.CONFIG.saveYML(fc);
 							
 							if(is.getAmount() > 1) {
 								is.setAmount(is.getAmount() - 1);
@@ -147,7 +146,7 @@ public class Actions implements Listener {
 	
 	@EventHandler
     public void onProjHit(ProjectileHitEvent e) {
-		FileConfiguration fc = DataHandler.CONFIG.getCachedYML();
+		FileConfiguration fc = Ultimates.CONFIG.getCachedYML();
 		if(fc.getBoolean("Enable.Bouncing-Projectiles")) {
 	        Projectile proj = e.getEntity();
 	

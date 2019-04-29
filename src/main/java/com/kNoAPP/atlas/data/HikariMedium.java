@@ -1,4 +1,4 @@
-package com.kNoAPP.Ults.data;
+package com.kNoAPP.atlas.data;
 
 import java.sql.Connection;
 import java.sql.SQLException;

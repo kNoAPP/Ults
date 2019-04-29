@@ -1,4 +1,4 @@
-package com.kNoAPP.Ults.data;
+package com.kNoAPP.atlas.data;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,10 +14,10 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.Plugin;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.kNoAPP.Ults.Ultimates;
 
 /**
  * A ULTILITY FOR GENERATING CONFIGURATION FILES FOR A PROGRAM
@@ -35,36 +35,33 @@ import com.kNoAPP.Ults.Ultimates;
  */
 public class DataHandler {
 	
-	//Where to save, what to call
-	public static YML CONFIG = new YML("/config.yml");
-	public static JSON FROZEN_CHUNKS = new JSON("/frozenchunks.json");
-	
 	protected String subtree, filename, outerPath;
 	protected File file;
 	protected boolean wasCreated;
 	
-	public DataHandler(String filename) {
-		this("/plugins/" + Ultimates.getPlugin().getName(), filename);
+	public DataHandler(Plugin pl, String filename) {
+		this(pl, "/plugins/" + pl.getName(), filename);
 	}
 	
 	/**
 	 * A base constructor for each file type
+	 * @param pl - A plugin instance to determine where to access data files from
 	 * @param subtree - Where to drop/access the configuration file (starting from the program run location)
 	 * @param filename - The name of a configuration file stored in src/main/resources usually preceded by a "/"
 	 */
-	public DataHandler(String subtree, String filename) {
+	public DataHandler(Plugin pl, String subtree, String filename) {
 		this.subtree = subtree;
 		this.filename = filename;
 		this.file = new File(System.getProperty("user.dir") + subtree, filename);
 		this.outerPath = file.getAbsolutePath();
 		
 		if(wasCreated = !file.exists()) {
-			Ultimates.getPlugin().getLogger().info(this.filename + " not found. Creating...");
+			pl.getLogger().info(this.filename + " not found. Creating...");
 			try {
 				file.getParentFile().mkdirs();
 				exportResource();
 			} catch (Exception e) { e.printStackTrace(); }
-		} else Ultimates.getPlugin().getLogger().info(this.filename + " found. Loading...");
+		} else pl.getLogger().info(this.filename + " found. Loading...");
 	}
 	
 	public File getFile() {
@@ -111,17 +108,18 @@ public class DataHandler {
 		private String cached;
 		private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		
-		public JSON(String filename) {
-			super(filename);
+		public JSON(Plugin pl, String filename) {
+			super(pl, filename);
 		}
 		
 		/**
 		 * A base constructor for each file type
+		 * @param pl - A plugin instance to determine where to access data files from
 		 * @param subtree - Where to drop/access the configuration file (starting from the program run location)
 		 * @param filename - The name of a configuration file stored in src/main/resources usually preceded by a "/"
 		 */
-		public JSON(String subtree, String filename) {
-			super(subtree, filename);
+		public JSON(Plugin pl, String subtree, String filename) {
+			super(pl, subtree, filename);
 		}
 		
 		/**
@@ -178,17 +176,18 @@ public class DataHandler {
 
 		private FileConfiguration cached;
 		
-		public YML(String filename) {
-			super(filename);
+		public YML(Plugin pl, String filename) {
+			super(pl, filename);
 		}
 		
 		/**
 		 * A base constructor for each file type
+		 * @param pl - A plugin instance to determine where to access data files from
 		 * @param subtree - Where to drop/access the configuration file (starting from the program run location)
 		 * @param filename - The name of a configuration file stored in src/main/resources usually preceded by a "/"
 		 */
-		public YML(String subtree, String filename) {
-			super(subtree, filename);
+		public YML(Plugin pl, String subtree, String filename) {
+			super(pl, subtree, filename);
 		}
 		
 		/**
@@ -227,17 +226,18 @@ public class DataHandler {
 		
 		private Properties cached = new Properties();
 		
-		public PROPS(String filename) {
-			super(filename);
+		public PROPS(Plugin pl, String filename) {
+			super(pl, filename);
 		}
 		
 		/**
 		 * A base constructor for each file type
+		 * @param pl - A plugin instance to determine where to access data files from
 		 * @param subtree - Where to drop/access the configuration file (starting from the program run location)
 		 * @param filename - The name of a configuration file stored in src/main/resources usually preceded by a "/"
 		 */
-		public PROPS(String subtree, String filename) {
-			super(subtree, filename);
+		public PROPS(Plugin pl, String subtree, String filename) {
+			super(pl, subtree, filename);
 		}
 		
 		/**
