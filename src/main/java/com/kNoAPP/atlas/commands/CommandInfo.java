@@ -15,4 +15,5 @@ public @interface CommandInfo {
     String usage() default "";
     String permission() default "";
     int[] length() default {-1};
+    int match() default -1;
 }

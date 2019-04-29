@@ -30,18 +30,23 @@ public abstract class AtlasCommand implements TabExecutor {
 		if(!info.permission().equals("") && !sender.hasPermission(info.permission()))
 			return null;
 		
+		String[] noLabel = Arrays.copyOfRange(args, 1, args.length);
 		Formation form = getFormation();
-		int type = form.getArgType(args.length - 1);
-		switch(type) {
-		case Formation.PLAYER:
-			return sender instanceof Player ? form.getPlayer((Player) sender) : form.getPlayer();
-		case Formation.NUMBER:
-			return form.getNumber(args.length - 1);
-		case Formation.LIST:
-			return form.getList(args.length - 1);
-		default:
-			return null;
-		}
+		if(form.isMatch(noLabel)) {
+			int type = form.getArgType(noLabel.length);
+			switch(type) {
+			case Formation.PLAYER:
+				return sender instanceof Player ? form.getPlayer((Player) sender) : form.getPlayer();
+			case Formation.NUMBER:
+				return form.getNumber(noLabel.length);
+			case Formation.LIST:
+				return form.getList(noLabel.length);
+			case Formation.STRING:
+				return form.getString(noLabel.length);
+			default:
+				return null;
+			}
+		} else return null;
 	}
 
 	@Override
@@ -56,32 +61,12 @@ public abstract class AtlasCommand implements TabExecutor {
 			return true;
 		}
 		
-		Formation form = getFormation();
-		for(int i=0; i<args.length; i++) {
-			int type = form.getArgType(i);
-			switch(type) {
-			case Formation.PLAYER:
-				break;
-			case Formation.NUMBER:
-				try {
-					Double.parseDouble(args[i]);
-				} catch(NumberFormatException e) {
-					alertUsage(sender, info.usage());
-					return true;
-				}
-				break;
-			case Formation.LIST:
-				if(!form.getList(i).stream().anyMatch(args[i]::equalsIgnoreCase)) {
-					alertUsage(sender, info.usage());
-					return true;
-				}
-				break;
-			default:
+		int lastMatchedArg = getFormation().lastMatch(args);
+		if(lastMatchedArg < args.length - 1) {
+			if(info.match() <= lastMatchedArg)
 				alertUsage(sender, info.usage());
-				return true;
-			}
+			return true;
 		}
-		
 		
 		if(sender instanceof Player) 
 			return onCommand((Player) sender, args);
@@ -149,16 +134,16 @@ public abstract class AtlasCommand implements TabExecutor {
                     InstantiationException | InvocationTargetException |
                     NoSuchFieldException e) {
                 e.printStackTrace();
-                plugin.getLogger().warning("Failed to load command: /" + info.name() + "! Command is not active.");
+                plugin.getLogger().warning("Failed to load " + this.getClass().getName() + ": /" + info.name());
                 return;
             }
 			
-			pc.setExecutor(this);
-			pc.setTabCompleter(this);
-			
-			plugin.getLogger().info("Successfully loaded command: /" + info.name() + ".");
+			plugin.getLogger().info("Successfully loaded " + this.getClass().getName() + ": /" + info.name());
 			for(String alias : info.aliases())
-				plugin.getLogger().info("Successfully loaded alias: /" + alias + ".");
-		}
+				plugin.getLogger().info("Successfully loaded " + this.getClass().getName() + " alias: /" + alias);
+		} else plugin.getLogger().info("Successfully loaded " + this.getClass().getName() + " subcommand: /" + info.name());
+			
+		pc.setExecutor(this);
+		pc.setTabCompleter(this);
 	}
 }

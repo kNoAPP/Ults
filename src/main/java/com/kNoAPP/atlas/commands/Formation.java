@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 
 public class Formation {
 	
-	public static final int INVALID = -1, PLAYER = 0, NUMBER = 1, LIST = 2;
+	public static final int INVALID = -1, PLAYER = 0, NUMBER = 1, LIST = 2, STRING = 3;
 
 	private int[] args;
 	private HashMap<Integer, Double[]> numbers;
@@ -21,6 +21,40 @@ public class Formation {
 		this.args = args;
 		this.numbers = numbers;
 		this.lists = lists;
+	}
+	
+	public int lastMatch(String[] args) {
+		int lastMatch = -1;
+		for(int i=0; i<args.length; i++) {
+			int type = getArgType(i);
+			switch(type) {
+			case Formation.PLAYER:
+				//Could check if valid player, but also what if offline player?
+				break;
+			case Formation.NUMBER:
+				try {
+					Double.parseDouble(args[i]);
+				} catch(NumberFormatException e) {
+					return lastMatch;
+				}
+				break;
+			case Formation.LIST:
+				if(!getList(i).stream().anyMatch(args[i]::equalsIgnoreCase))
+					return lastMatch;
+				break;
+			case Formation.STRING:
+				//Can be any string
+				break;
+			default:
+				return lastMatch;
+			}
+			lastMatch++;
+		}
+		return lastMatch;
+	}
+	
+	public boolean isMatch(String[] args) {
+		return lastMatch(args) == args.length - 1;
 	}
 	
 	public int getArgType(int index) {
@@ -53,6 +87,10 @@ public class Formation {
 		return lists.get(index);
 	}
 	
+	public List<String> getString(int index) {
+		return lists.get(index);
+	}
+	
 	public static class FormationBuilder {
     	
     	private List<Integer> builder = new ArrayList<Integer>();
@@ -70,9 +108,17 @@ public class Formation {
     		return this;
     	}
     	
+    	//Must be one of these in String array
     	public FormationBuilder list(String... data) {
     		lists.put(builder.size(), Arrays.asList(data));
     		builder.add(2);
+    		return this;
+    	}
+    	
+    	//Suggested Strings but not required. Ex. Map names
+    	public FormationBuilder string(String... data) {
+    		lists.put(builder.size(), Arrays.asList(data)); //Shared HashMap
+    		builder.add(3);
     		return this;
     	}
     	
