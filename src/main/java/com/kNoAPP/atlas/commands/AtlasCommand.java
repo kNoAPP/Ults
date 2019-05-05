@@ -3,8 +3,10 @@ package com.kNoAPP.atlas.commands;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -24,54 +26,78 @@ public abstract class AtlasCommand implements TabExecutor {
 	private static final String USAGE = ChatColor.GOLD + "Try> " + ChatColor.GRAY + "%usage%";
 	
 	private CommandInfo info = getClass().getAnnotation(CommandInfo.class);
+	private List<AtlasCommand> extensions = new ArrayList<AtlasCommand>();
+	private boolean root = false;
 
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+		List<String> suggestions = new ArrayList<String>();
+		if(root) {
+			for(AtlasCommand ac : extensions) {
+				List<String> ret = ac.onTabComplete(sender, command, alias, args);
+				if(ret != null)
+					suggestions.addAll(ret);
+			}
+		}
+		
 		if(!info.permission().equals("") && !sender.hasPermission(info.permission()))
-			return null;
+			return suggestions.size() > 0 ? suggestions : null;
 		
 		Formation form = getFormation();
 		if(form.lastMatch(args) >= args.length - 2) {
 			int type = form.getArgType(args.length - 1);
 			switch(type) {
 			case Formation.PLAYER:
-				return sender instanceof Player ? form.getPlayer((Player) sender) : form.getPlayer();
+				suggestions.addAll((sender instanceof Player ? form.getPlayer((Player) sender) : form.getPlayer()).stream().filter(s -> s.startsWith(args[args.length-1])).collect(Collectors.toList()));
+				break;
 			case Formation.NUMBER:
-				return form.getNumber(args.length - 1);
+				suggestions.addAll(form.getNumber(args.length - 1).stream().filter(s -> s.startsWith(args[args.length-1])).collect(Collectors.toList()));
+				break;
 			case Formation.LIST:
-				return form.getList(args.length - 1);
+				suggestions.addAll(form.getList(args.length - 1).stream().filter(s -> s.startsWith(args[args.length-1])).collect(Collectors.toList()));
+				break;
 			case Formation.STRING:
-				return form.getString(args.length - 1);
+				suggestions.addAll(form.getString(args.length - 1).stream().filter(s -> s.startsWith(args[args.length-1])).collect(Collectors.toList()));
+				break;
 			default:
-				return null;
+				break;
 			}
-		} else return null;
+		}
+		return suggestions.size() > 0 ? suggestions : null;
 	}
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if(!info.permission().equals("") && !sender.hasPermission(info.permission())) {
+		if(root)
+			for(AtlasCommand ac : extensions)
+				if(ac.onCommand(sender, command, label, args))
+					return true;
+		
+		boolean permission = info.permission().equals("") || sender.hasPermission(info.permission());
+		int lastMatchedArg = getFormation().lastMatch(args);
+		if(lastMatchedArg < args.length - 1) {
+			if(info.argMatch() <= lastMatchedArg && permission)
+				alertUsage(sender, info.usage());
+			return root;
+		}
+		
+		if(!permission) {
 			alertNoPermission(sender, info.permission());
-			return true;
+			return root;
 		}
 		
 		if(!validArgs(args.length)) {
 			alertUsage(sender, info.usage());
-			return true;
+			return root;
 		}
 		
-		int lastMatchedArg = getFormation().lastMatch(args);
-		if(lastMatchedArg < args.length - 1) {
-			if(info.argMatch() <= lastMatchedArg)
-				alertUsage(sender, info.usage());
+		if(sender instanceof Player) {
+			onCommand((Player) sender, args);
 			return true;
-		}
-		
-		if(sender instanceof Player) 
-			return onCommand((Player) sender, args);
-		if(sender instanceof ConsoleCommandSender)
-			return onCommand((ConsoleCommandSender) sender, args);
-		return true;
+		} else if(sender instanceof ConsoleCommandSender) {
+			onCommand((ConsoleCommandSender) sender, args);
+			return true;
+		} else return root;
 	}
 	
 	protected void alertNoPermission(CommandSender sender, String permission) {
@@ -140,9 +166,13 @@ public abstract class AtlasCommand implements TabExecutor {
 			plugin.getLogger().info("Successfully loaded " + this.getClass().getName() + ": /" + info.name());
 			for(String alias : info.aliases())
 				plugin.getLogger().info("Successfully loaded " + this.getClass().getName() + " alias: /" + alias);
-		} else plugin.getLogger().info("Successfully loaded " + this.getClass().getName() + " subcommand: /" + info.name());
 			
-		pc.setExecutor(this);
-		pc.setTabCompleter(this);
+			pc.setExecutor(this);
+			pc.setTabCompleter(this);
+			root = true;
+		} else if(pc.getExecutor() instanceof AtlasCommand) {
+			plugin.getLogger().info("Successfully loaded " + this.getClass().getName() + " subcommand: /" + info.name());
+			((AtlasCommand) pc.getExecutor()).extensions.add(this);
+		} else plugin.getLogger().warning("Command " + info.name() + " has been registered by a non-Atlas command! Cannot register.");
 	}
 }

@@ -17,9 +17,9 @@ import com.kNoAPP.Ults.commands.SoundGenCommand;
 import com.kNoAPP.Ults.commands.UltimateCommand;
 import com.kNoAPP.Ults.enchants.CustomEnchant;
 import com.kNoAPP.Ults.utils.Items;
-import com.kNoAPP.atlas.data.HikariMedium;
 import com.kNoAPP.atlas.data.DataHandler.JSON;
 import com.kNoAPP.atlas.data.DataHandler.YML;
+import com.kNoAPP.atlas.data.HikariMedium;
 
 public class Ultimates extends JavaPlugin {
 	
