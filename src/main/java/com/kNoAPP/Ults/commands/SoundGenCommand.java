@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -60,7 +61,7 @@ public class SoundGenCommand extends AtlasCommand {
 	}
 
 	@Override
-	protected Formation getFormation() {
+	protected Formation getFormation(CommandSender sender) {
 		return FORM;
 	}
 }

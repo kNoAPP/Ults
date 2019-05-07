@@ -1,5 +1,6 @@
 package com.kNoAPP.Ults.commands;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.kNoAPP.Ults.aspects.Message;
@@ -42,7 +43,7 @@ public class ScrambleCommand extends AtlasCommand {
 	}
 
 	@Override
-	protected Formation getFormation() {
+	protected Formation getFormation(CommandSender sender) {
 		return FORM;
 	}
 }

@@ -29,8 +29,14 @@ public abstract class AtlasCommand implements TabExecutor {
 	private List<AtlasCommand> extensions = new ArrayList<AtlasCommand>();
 	private boolean root = false;
 
+	/**
+	 * Base logic, not recommended to Override.
+	 */
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+		if(!(sender instanceof Player || sender instanceof ConsoleCommandSender))
+			return null;
+		
 		List<String> suggestions = new ArrayList<String>();
 		if(root) {
 			for(AtlasCommand ac : extensions) {
@@ -43,7 +49,8 @@ public abstract class AtlasCommand implements TabExecutor {
 		if(!info.permission().equals("") && !sender.hasPermission(info.permission()))
 			return suggestions.size() > 0 ? suggestions : null;
 		
-		Formation form = getFormation();
+		
+		Formation form = getFormation((Player) sender);
 		if(form.lastMatch(args) >= args.length - 2) {
 			int type = form.getArgType(args.length - 1);
 			switch(type) {
@@ -66,15 +73,21 @@ public abstract class AtlasCommand implements TabExecutor {
 		return suggestions.size() > 0 ? suggestions : null;
 	}
 
+	/**
+	 * Base logic, not recommended to Override.
+	 */
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		if(!(sender instanceof Player || sender instanceof ConsoleCommandSender))
+			return true;
+		
 		if(root)
 			for(AtlasCommand ac : extensions)
 				if(ac.onCommand(sender, command, label, args))
 					return true;
 		
 		boolean permission = info.permission().equals("") || sender.hasPermission(info.permission());
-		int lastMatchedArg = getFormation().lastMatch(args);
+		int lastMatchedArg = getFormation(sender).lastMatch(args);
 		if(lastMatchedArg < args.length - 1) {
 			if(info.argMatch() <= lastMatchedArg && permission)
 				alertUsage(sender, info.usage());
@@ -119,22 +132,51 @@ public abstract class AtlasCommand implements TabExecutor {
 		return false;
 	}
 	
+	/**
+	 * Passed when a Player types a valid command that matches Formation and desired arg length.
+	 * @param sender - The Player who sent the command
+	 * @param args - The args of the command (guaranteed length by CommandInfo argMatch)
+	 * @return Doesn't matter, gets ignored
+	 */
 	protected boolean onCommand(Player sender, String[] args) {
 		sender.sendMessage(ChatColor.GOLD + "Warn> " + ChatColor.RED + "This command may only be run by the console.");
 		return true; 
 	}
 	
+	/**
+	 * Passed when a ConsoleCommandSender types a valid command that matches Formation and desired arg length.
+	 * @param sender - The ConsoleCommandSender who sent the command
+	 * @param args - The args of the command (guaranteed length by CommandInfo argMatch)
+	 * @return Doesn't matter, gets ignored
+	 */
 	protected boolean onCommand(ConsoleCommandSender sender, String[] args) {
 		sender.sendMessage(ChatColor.GOLD + "Warn> " + ChatColor.RED + "This command may only be run by players.");
 		return true; 
 	}
 	
-	protected abstract Formation getFormation();
+	/**
+	 * Use Formation.FormationBuilder to build a Formation. For constant Formations, use a private static final Formation.
+	 * 
+	 * Ex. new FormationBuilder().list("foo", "bar").player().number(5.5, 10, 0.5).string("potato", "tomato").build();
+	 * list - REQUIRED to have one of these Strings.
+	 * player - REQUIRED to include a player name. However, since a player may be offline, no argument checking occurs on the inputed String 
+	 *          (Online players that the sender Player#canSee() will be recommended)
+	 * number - REQUIRED to include a number (Double). Will create suggestions based on #number(low, high, step).
+	 * string - OPTIONAL to have one of these Strings. (Strings other than suggestions may be passed)
+	 * 
+	 * @param sender - A Player or ConsoleCommandSender who tab-completed or ran the command.
+	 * @return A Formation with proper command structure.
+	 */
+	protected abstract Formation getFormation(CommandSender sender);
 	
 	public CommandInfo getInfo() {
 		return info;
 	}
 	
+	/**
+	 * Register the command to the plugin.
+	 * @param plugin - Plugin main class (the class instance with onEnable/onDisable, commonly passed as "this")
+	 */
 	public void registerCommand(JavaPlugin plugin) {
 		if(info == null)
 			throw new UnsupportedOperationException("CommandInfo annotation is missing!");	

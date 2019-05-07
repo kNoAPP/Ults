@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -127,7 +128,7 @@ public class RecallCommand extends AtlasCommand implements Listener {
 	}
 
 	@Override
-	protected Formation getFormation() {
+	protected Formation getFormation(CommandSender sender) {
 		return FORM;
 	}
 	

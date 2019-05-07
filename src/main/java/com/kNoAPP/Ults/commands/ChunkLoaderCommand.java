@@ -5,6 +5,7 @@ import java.util.HashSet;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -71,7 +72,7 @@ public class ChunkLoaderCommand extends AtlasCommand implements Listener {
 	}
 
 	@Override
-	protected Formation getFormation() {
+	protected Formation getFormation(CommandSender sender) {
 		return FORM;
 	}
 	

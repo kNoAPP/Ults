@@ -1,6 +1,7 @@
 package com.kNoAPP.Ults.commands;
 
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
@@ -37,7 +38,7 @@ public class HelpCommand extends AtlasCommand {
 	}
 
 	@Override
-	protected Formation getFormation() {
+	protected Formation getFormation(CommandSender sender) {
 		return FORM;
 	}
 }
