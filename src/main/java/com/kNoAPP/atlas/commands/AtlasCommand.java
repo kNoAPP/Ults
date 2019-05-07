@@ -215,6 +215,56 @@ public abstract class AtlasCommand implements TabExecutor {
 		} else if(pc.getExecutor() instanceof AtlasCommand) {
 			plugin.getLogger().info("Successfully loaded " + this.getClass().getName() + " subcommand: /" + info.name());
 			((AtlasCommand) pc.getExecutor()).extensions.add(this);
+			
+			//Recursive head-call to potentially register an alias as a command
+			String[] aliases = info.aliases();
+			if(aliases.length > 1)
+				registerCommand(aliases[0], Arrays.copyOfRange(aliases, 1, aliases.length), plugin);
 		} else plugin.getLogger().warning("Command " + info.name() + " has been registered by a non-Atlas command! Cannot register.");
+	}
+	
+	private void registerCommand(String cmd, String[] aliases, JavaPlugin plugin) {
+		if(info == null)
+			throw new UnsupportedOperationException("CommandInfo annotation is missing!");	
+		
+		PluginCommand pc = plugin.getCommand(cmd);
+		if(pc == null) {
+			try {
+				Constructor<PluginCommand> cons = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
+				cons.setAccessible(true);
+				pc = cons.newInstance(cmd, plugin);
+				
+				pc.setAliases(Arrays.asList(aliases));
+				pc.setDescription(info.description());
+				pc.setUsage(info.usage());
+				
+				Field cmdMap = Bukkit.getPluginManager().getClass().getDeclaredField("commandMap");
+                cmdMap.setAccessible(true);
+                CommandMap map = (CommandMap) cmdMap.get(Bukkit.getPluginManager());
+
+                map.register(plugin.getName(), pc);
+			} catch (NoSuchMethodException | IllegalAccessException |
+                    InstantiationException | InvocationTargetException |
+                    NoSuchFieldException e) {
+                e.printStackTrace();
+                plugin.getLogger().warning("Failed to load " + this.getClass().getName() + ": /" + cmd);
+                return;
+            }
+			
+			plugin.getLogger().info("Successfully loaded " + this.getClass().getName() + ": /" + cmd);
+			for(String alias : aliases)
+				plugin.getLogger().info("Successfully loaded " + this.getClass().getName() + " alias: /" + alias);
+			
+			pc.setExecutor(this);
+			pc.setTabCompleter(this);
+			root = true;
+		} else if(pc.getExecutor() instanceof AtlasCommand) {
+			plugin.getLogger().info("Successfully loaded " + this.getClass().getName() + " subcommand: /" + cmd);
+			((AtlasCommand) pc.getExecutor()).extensions.add(this);
+			
+			//Recursive call to potentially register an alias as a command
+			if(aliases.length > 1)
+				registerCommand(aliases[0], Arrays.copyOfRange(aliases, 1, aliases.length), plugin);
+		} else plugin.getLogger().warning("Command " + cmd + " has been registered by a non-Atlas command! Cannot register.");
 	}
 }
