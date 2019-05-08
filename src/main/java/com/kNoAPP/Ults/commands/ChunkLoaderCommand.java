@@ -8,7 +8,6 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.world.ChunkUnloadEvent;
 
 import com.kNoAPP.Ults.Ultimates;
@@ -20,7 +19,7 @@ import com.kNoAPP.atlas.commands.Formation.FormationBuilder;
 import com.kNoAPP.atlas.data.DataHandler.JSON;
 
 @CommandInfo(name = "chunk", description = "Freeze and unfreeze chunks", usage = "/chunk (freeze | unfreeze)", length = {0, 1})
-public class ChunkLoaderCommand extends AtlasCommand implements Listener {
+public class ChunkLoaderCommand extends AtlasCommand {
 	
 	private final Formation FORM = new FormationBuilder().list("freeze", "unfreeze").build();
 	

@@ -17,10 +17,11 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public abstract class AtlasCommand implements TabExecutor {
+public abstract class AtlasCommand implements TabExecutor, Listener {
 
 	private static final String NO_PERMISSION = ChatColor.GOLD + "Permission> " + ChatColor.GRAY + "You are missing permission " + ChatColor.DARK_AQUA + "%perm%" + ChatColor.GRAY + "!";
 	private static final String USAGE = ChatColor.GOLD + "Try> " + ChatColor.GRAY + "%usage%";
@@ -171,6 +172,11 @@ public abstract class AtlasCommand implements TabExecutor {
 	
 	public CommandInfo getInfo() {
 		return info;
+	}
+	
+	public void registerCommandWithListener(JavaPlugin plugin) {
+		plugin.getServer().getPluginManager().registerEvents(this, plugin);
+		registerCommand(plugin);
 	}
 	
 	/**

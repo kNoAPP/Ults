@@ -13,7 +13,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -29,7 +28,7 @@ import com.kNoAPP.atlas.commands.Formation;
 import com.kNoAPP.atlas.commands.Formation.FormationBuilder;
 
 @CommandInfo(name = "recall", description = "Recall to a previously set location", usage = "/recall (set | kill)", length = {0, 1})
-public class RecallCommand extends AtlasCommand implements Listener {
+public class RecallCommand extends AtlasCommand {
 	
 	private static final Formation FORM = new FormationBuilder().list("set", "kill").build();
 	

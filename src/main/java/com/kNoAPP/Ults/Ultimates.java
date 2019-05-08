@@ -57,17 +57,12 @@ public class Ultimates extends JavaPlugin {
 	private void register() {
 		CONFIG = new YML(this, "/config.yml");
 		FROZEN_CHUNKS = new JSON(this, "/frozenchunks.json");
-		
-		clc = new ChunkLoaderCommand(FROZEN_CHUNKS);
-		RecallCommand rc = new RecallCommand();
-		
-		getServer().getPluginManager().registerEvents(clc, this);
-		getServer().getPluginManager().registerEvents(rc, this);
+
 		getServer().getPluginManager().registerEvents(new Actions(), this);
 		
-		clc.registerCommand(this);
+		new ChunkLoaderCommand(FROZEN_CHUNKS).registerCommandWithListener(this);
 		new HelpCommand().registerCommand(this);
-		rc.registerCommand(this);
+		new RecallCommand().registerCommandWithListener(this);
 		new ScrambleCommand().registerCommand(this);
 		new SoundGenCommand().registerCommand(this);
 		new UltimateCommand().registerCommand(this);
