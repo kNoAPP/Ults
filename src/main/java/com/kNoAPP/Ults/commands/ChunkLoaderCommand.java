@@ -38,7 +38,7 @@ public class ChunkLoaderCommand extends AtlasCommand {
 	}
 	
 	@Override
-	public boolean onCommand(Player sender, String[] args) {
+	public boolean onCommand(Player sender, String label, String[] args) {
 		switch(args.length) {
 		case 0:
 			ChunkLocation testFor = new ChunkLocation(sender.getLocation().getChunk());

@@ -16,7 +16,7 @@ public class UltimateCommand extends AtlasCommand {
 	private static final Formation FORM = new FormationBuilder().list("kindred").build();
 
 	@Override
-	public boolean onCommand(Player sender, String[] args) {
+	public boolean onCommand(Player sender, String label, String[] args) {
 		switch(args.length) {
 		case 1:
 			if(args[0].equalsIgnoreCase("kindred")) 

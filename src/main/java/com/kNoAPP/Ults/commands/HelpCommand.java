@@ -17,7 +17,7 @@ public class HelpCommand extends AtlasCommand {
 	private static final Formation FORM = new FormationBuilder().build();
 
 	@Override
-	public boolean onCommand(Player sender, String[] args) {
+	public boolean onCommand(Player sender, String label, String[] args) {
 		sender.sendMessage(Message.INFO.getMessage("Ultimates - By kNoAPP"));
 		sender.sendMessage(ChatColor.DARK_GREEN + "------------------");
 		sender.sendMessage(Message.HELP.getMessage("/ultimates - Show all commands from Ultimates"));
@@ -30,7 +30,7 @@ public class HelpCommand extends AtlasCommand {
 	}
 	
 	@Override
-	public boolean onCommand(ConsoleCommandSender sender, String[] args) {
+	public boolean onCommand(ConsoleCommandSender sender, String label, String[] args) {
 		sender.sendMessage(Message.INFO.getMessage("Ultimates - By kNoAPP"));
 		sender.sendMessage(ChatColor.DARK_GREEN + "------------------");
 		sender.sendMessage(Message.HELP.getMessage("/ultimates - Show all commands from Ultimates"));

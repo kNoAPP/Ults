@@ -106,10 +106,10 @@ public abstract class AtlasCommand implements TabExecutor, Listener {
 		}
 		
 		if(sender instanceof Player) {
-			onCommand((Player) sender, args);
+			onCommand((Player) sender, label, args);
 			return true;
 		} else if(sender instanceof ConsoleCommandSender) {
-			onCommand((ConsoleCommandSender) sender, args);
+			onCommand((ConsoleCommandSender) sender, label, args);
 			return true;
 		} else return root;
 	}
@@ -139,7 +139,7 @@ public abstract class AtlasCommand implements TabExecutor, Listener {
 	 * @param args - The args of the command (guaranteed length by CommandInfo argMatch)
 	 * @return Doesn't matter, gets ignored
 	 */
-	protected boolean onCommand(Player sender, String[] args) {
+	protected boolean onCommand(Player sender, String label, String[] args) {
 		sender.sendMessage(ChatColor.GOLD + "Warn> " + ChatColor.RED + "This command may only be run by the console.");
 		return true; 
 	}
@@ -150,7 +150,7 @@ public abstract class AtlasCommand implements TabExecutor, Listener {
 	 * @param args - The args of the command (guaranteed length by CommandInfo argMatch)
 	 * @return Doesn't matter, gets ignored
 	 */
-	protected boolean onCommand(ConsoleCommandSender sender, String[] args) {
+	protected boolean onCommand(ConsoleCommandSender sender, String label, String[] args) {
 		sender.sendMessage(ChatColor.GOLD + "Warn> " + ChatColor.RED + "This command may only be run by players.");
 		return true; 
 	}

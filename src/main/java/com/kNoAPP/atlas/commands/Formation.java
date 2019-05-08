@@ -28,6 +28,37 @@ public class Formation {
 	}
 	
 	/**
+	 * Used in conjunction with CommandInfo#aliasIgnore to throw out a passed
+	 * number of args from the formation. Args are removed from the beginning and
+	 * remaining ones are shifted over.
+	 * @param firstArgs - How many of the firstArgs to remove
+	 * @return A new Formation shifted left.
+	 */
+	public Formation ignoreFirst(int firstArgs) {
+		if(firstArgs > args.length)
+			throw new IllegalArgumentException("Param firstArgs cannot be greater than the Formation args! " + firstArgs + "<=" + args.length);
+		
+		HashMap<Integer, Double[]> newNumbers = new HashMap<Integer, Double[]>();
+		HashMap<Integer, List<String>> newLists = new HashMap<Integer, List<String>>(lists);
+		
+		for(int key : numbers.keySet()) {
+			Double[] num = numbers.get(key);
+			key -= firstArgs;
+			if(key >= 0)
+				newNumbers.put(key, num);
+		}
+		
+		for(int key : lists.keySet()) {
+			List<String> list = lists.get(key);
+			key -= firstArgs;
+			if(key >= 0)
+				newLists.put(key, list);
+		}
+		
+		return new Formation(Arrays.copyOfRange(args, firstArgs, args.length), newNumbers, newLists);
+	}
+	
+	/**
 	 * Finds the last argument to match the Formation. 
 	 * -1 - if no match
 	 * 0 - if first arg matches

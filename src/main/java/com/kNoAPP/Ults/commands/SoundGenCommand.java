@@ -25,7 +25,7 @@ public class SoundGenCommand extends AtlasCommand {
 	private List<UUID> soundgen = new ArrayList<UUID>();
 
 	@Override
-	public boolean onCommand(Player sender, String[] args) {
+	public boolean onCommand(Player sender, String label, String[] args) {
 		switch(args.length) {
 		case 0:
 			sender.sendMessage(Message.SOUNDGEN.getMessage("Flushing sounds..."));

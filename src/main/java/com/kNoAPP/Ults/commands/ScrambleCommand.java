@@ -16,7 +16,7 @@ public class ScrambleCommand extends AtlasCommand {
 	private static final Formation FORM = new FormationBuilder().list("on", "off").number(5, 20, 5).number(2, 10, 2).build();
 
 	@Override
-	public boolean onCommand(Player sender, String[] args) {
+	public boolean onCommand(Player sender, String label, String[] args) {
 		if(sender.getName().equals("JayJay05")) 
 			sender.sendMessage(Message.SCRAMBLE.getMessage("Screw off Jay. >:("));
 			

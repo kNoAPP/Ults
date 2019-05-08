@@ -35,7 +35,7 @@ public class RecallCommand extends AtlasCommand {
 	private HashSet<UUID> recalls = new HashSet<UUID>();
 
 	@Override
-	public boolean onCommand(Player sender, String[] args) {
+	public boolean onCommand(Player sender, String label, String[] args) {
 		Location l = (Location) Ultimates.CONFIG.getCachedYML().get("Player." + sender.getUniqueId() + ".Recall");
 		
 		switch(args.length) {
