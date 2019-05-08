@@ -88,7 +88,7 @@ public abstract class AtlasCommand implements TabExecutor {
 		
 		boolean permission = info.permission().equals("") || sender.hasPermission(info.permission());
 		int lastMatchedArg = getFormation(sender).lastMatch(args);
-		if(lastMatchedArg < args.length - 1) {
+		if(lastMatchedArg < args.length - 1 || args.length - 1 < info.argMatch()) {
 			if(info.argMatch() <= lastMatchedArg && permission)
 				alertUsage(sender, info.usage());
 			return root;
