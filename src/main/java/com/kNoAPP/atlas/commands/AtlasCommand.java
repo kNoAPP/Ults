@@ -174,13 +174,33 @@ public abstract class AtlasCommand implements TabExecutor, Listener {
 		return info;
 	}
 	
+	/**
+	 * Registers the command to the plugin with an included Event Listener.
+	 * 
+	 * Command execution priority follows the following set of rules
+	 *      1. Zero or ONLY ONE AtlasCommand instance will be executed (or "passed") per command request.
+	 *      1. The first time an AtlasCommand is registered with a specific command label (e.g. /foobar),
+	 *         it becomes a "command"
+	 *      2. Following registrations of AtlasCommands with the same command label become "subcommands"
+	 *      3. When subcommands are present, the parent command will have the lowest execution priority
+	 *      4. Subcommand priority is determined by the order the commands were registered. First come, first served.
+	 * @param plugin - Plugin main class (the class instance with onEnable/onDisable, commonly passed as "this")
+	 */
 	public void registerCommandWithListener(JavaPlugin plugin) {
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 		registerCommand(plugin);
 	}
 	
 	/**
-	 * Register the command to the plugin.
+	 * Registers the command to the plugin.
+	 * 
+	 * Command execution priority follows the following set of rules
+	 *      1. Zero or ONLY ONE AtlasCommand instance will be executed (or "passed") per command request.
+	 *      1. The first time an AtlasCommand is registered with a specific command label (e.g. /foobar),
+	 *         it becomes a "command"
+	 *      2. Following registrations of AtlasCommands with the same command label become "subcommands"
+	 *      3. When subcommands are present, the parent command will have the lowest execution priority
+	 *      4. Subcommand priority is determined by the order the commands were registered. First come, first served.
 	 * @param plugin - Plugin main class (the class instance with onEnable/onDisable, commonly passed as "this")
 	 */
 	public void registerCommand(JavaPlugin plugin) {
