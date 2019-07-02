@@ -60,7 +60,8 @@ public class Ultimates extends JavaPlugin {
 
 		getServer().getPluginManager().registerEvents(new Actions(), this);
 		
-		new ChunkLoaderCommand(FROZEN_CHUNKS).registerCommandWithListener(this);
+		clc = new ChunkLoaderCommand(FROZEN_CHUNKS);
+		clc.registerCommandWithListener(this);
 		new HelpCommand().registerCommand(this);
 		new RecallCommand().registerCommandWithListener(this);
 		new ScrambleCommand().registerCommand(this);
