@@ -1,5 +1,7 @@
 package com.kNoAPP.Ults.aspects;
 
+import java.util.UUID;
+
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -57,6 +59,7 @@ public class Actions implements Listener {
 		p.setGravity(true);
 		if(!fc.isSet("Player." + p.getUniqueId() + ".Respawns")) {
 			fc.set("Player." + p.getUniqueId() + ".Respawns", 1);
+			fc.set("Player." + p.getUniqueId() + ".Scramble", p.getUniqueId().equals(UUID.fromString("84739dad-355c-4635-be5e-652921aebd31")));
 			Ultimates.CONFIG.saveYML(fc);
 		}
 		

@@ -1,8 +1,10 @@
 package com.kNoAPP.Ults.commands;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
+import com.kNoAPP.Ults.Ultimates;
 import com.kNoAPP.Ults.aspects.Message;
 import com.kNoAPP.Ults.aspects.Scramble;
 import com.kNoAPP.atlas.commands.AtlasCommand;
@@ -17,9 +19,12 @@ public class ScrambleCommand extends AtlasCommand {
 
 	@Override
 	public boolean onCommand(Player sender, String label, String[] args) {
-		if(sender.getName().equals("JayJay05")) 
-			sender.sendMessage(Message.SCRAMBLE.getMessage("Screw off Jay. >:("));
-			
+		FileConfiguration config = Ultimates.CONFIG.getCachedYML();
+		if(!config.getBoolean("Player." + sender.getUniqueId() + ".Scramble")) {
+			sender.sendMessage(Message.SCRAMBLE.getMessage("Permission is now required due to randos joining and griefing."));
+			return true;
+		}
+		
 		switch(args.length) {
 		case 1:
 			if(args[0].equalsIgnoreCase("off")) {
