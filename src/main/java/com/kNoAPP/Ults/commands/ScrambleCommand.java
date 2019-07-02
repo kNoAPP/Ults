@@ -12,7 +12,7 @@ import com.kNoAPP.atlas.commands.CommandInfo;
 import com.kNoAPP.atlas.commands.Formation;
 import com.kNoAPP.atlas.commands.Formation.FormationBuilder;
 
-@CommandInfo(name = "scramble", description = "Screw JayJay05", usage = "/scramble <on | off> (radius) (ticks)", length = {1, 3})
+@CommandInfo(name = "scramble", description = "Made to combat JayJay05.", usage = "/scramble <on | off> (radius) (ticks)", length = {1, 3})
 public class ScrambleCommand extends AtlasCommand {
 	
 	private static final Formation FORM = new FormationBuilder().list("on", "off").number(5, 20, 5).number(2, 10, 2).build();
@@ -20,7 +20,7 @@ public class ScrambleCommand extends AtlasCommand {
 	@Override
 	public boolean onCommand(Player sender, String label, String[] args) {
 		FileConfiguration config = Ultimates.CONFIG.getCachedYML();
-		if(!config.getBoolean("Player." + sender.getUniqueId() + ".Scramble")) {
+		if(!(config.getBoolean("Player." + sender.getUniqueId() + ".Scramble") || sender.isOp())) {
 			sender.sendMessage(Message.SCRAMBLE.getMessage("Permission is now required due to randos joining and griefing."));
 			return true;
 		}
