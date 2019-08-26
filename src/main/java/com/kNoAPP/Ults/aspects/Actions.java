@@ -92,6 +92,8 @@ public class Actions implements Listener {
 			
 			e.setKeepInventory(true);
 			e.setKeepLevel(true);
+			e.setDroppedExp(0);
+			e.getDrops().clear();
 			
 			p.sendMessage(Message.RESPAWN.getMessage("You have used a free respawn. " + (r-1) + " left."));
 		}

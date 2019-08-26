@@ -80,18 +80,18 @@ public class RecallCommand extends AtlasCommand {
 						p.playSound(p.getLocation(), Sound.BLOCK_TRIPWIRE_CLICK_ON, 1F, 1F);
 					}
 					if(tl <= 0) {
-						Entity m = p.getVehicle();
 						List<Entity> passs = p.getPassengers();
-						p.teleport(l);
+						for(Entity pass : passs) {
+							pass.leaveVehicle();
+							pass.teleport(l);
+						}
+						
+						Entity m = p.getVehicle();
 						if(m != null) {
+							p.leaveVehicle();
+							p.teleport(l);
 							m.teleport(l);
 							m.addPassenger(p);
-						}
-						for(Entity pass : passs) {
-							if(pass != null) {
-								pass.teleport(l);
-								p.addPassenger(pass);
-							}
 						}
 						p.playSound(p.getLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1F, 1F);
 						
