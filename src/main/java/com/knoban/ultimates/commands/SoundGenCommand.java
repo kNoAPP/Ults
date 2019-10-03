@@ -12,7 +12,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import com.knoban.ultimates.Ultimates;
 import com.knoban.ultimates.aspects.Message;
-import com.knoban.ultimates.utils.Tools;
+import com.knoban.atlas.utils.Tools;
 import com.knoban.atlas.commands.AtlasCommand;
 import com.knoban.atlas.commands.CommandInfo;
 import com.knoban.atlas.commands.Formation;

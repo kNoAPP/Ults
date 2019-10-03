@@ -43,7 +43,7 @@ import org.bukkit.util.Vector;
 import com.knoban.ultimates.Ultimates;
 import com.knoban.ultimates.enchants.EnchantStomper;
 import com.knoban.ultimates.utils.Items;
-import com.knoban.ultimates.utils.Tools;
+import com.knoban.atlas.utils.Tools;
 
 public class Actions implements Listener {
 

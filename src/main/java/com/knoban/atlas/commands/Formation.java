@@ -18,10 +18,10 @@ public class Formation {
 	public static final int INVALID = -1, PLAYER = 0, NUMBER = 1, LIST = 2, STRING = 3;
 
 	private int[] args;
-	private HashMap<Integer, Double[]> numbers;
-	private HashMap<Integer, List<String>> lists;
+	private ArrayList<Double[]> numbers;
+	private ArrayList<List<String>> lists;
 	
-	private Formation(int[] args, HashMap<Integer, Double[]> numbers, HashMap<Integer, List<String>> lists) {
+	private Formation(int[] args, ArrayList<Double[]> numbers, ArrayList<List<String>> lists) {
 		this.args = args;
 		this.numbers = numbers;
 		this.lists = lists;
@@ -36,26 +36,13 @@ public class Formation {
 	 */
 	public Formation ignoreFirst(int firstArgs) {
 		if(firstArgs > args.length)
-			throw new IllegalArgumentException("Param firstArgs cannot be greater than the Formation args! " + firstArgs + "<=" + args.length);
-		
-		HashMap<Integer, Double[]> newNumbers = new HashMap<Integer, Double[]>();
-		HashMap<Integer, List<String>> newLists = new HashMap<Integer, List<String>>(lists);
-		
-		for(int key : numbers.keySet()) {
-			Double[] num = numbers.get(key);
-			key -= firstArgs;
-			if(key >= 0)
-				newNumbers.put(key, num);
-		}
-		
-		for(int key : lists.keySet()) {
-			List<String> list = lists.get(key);
-			key -= firstArgs;
-			if(key >= 0)
-				newLists.put(key, list);
-		}
-		
-		return new Formation(Arrays.copyOfRange(args, firstArgs, args.length), newNumbers, newLists);
+			throw new IndexOutOfBoundsException("Param firstArgs cannot be greater than the Formation args! "
+					+ firstArgs + "<=" + args.length);
+		if(firstArgs < 0)
+			throw new IndexOutOfBoundsException("Param firstArgs cannot be less than 0!");
+		return new Formation(Arrays.copyOfRange(args, firstArgs, args.length),
+				new ArrayList<Double[]>(numbers.subList(firstArgs, numbers.size())),
+				new ArrayList<List<String>>(lists.subList(firstArgs, lists.size())));
 	}
 	
 	/**
@@ -117,7 +104,7 @@ public class Formation {
 	 * @return
 	 */
 	public int getArgType(int index) {
-		if(index >= args.length || 0 > index)
+		if(index < 0 || args.length <= index)
 			return -1;
 		
 		return args[index];
@@ -181,15 +168,15 @@ public class Formation {
 	public static class FormationBuilder {
     	
     	private List<Integer> builder = new ArrayList<Integer>();
-    	private HashMap<Integer, Double[]> numbers = new HashMap<Integer, Double[]>();
-    	private HashMap<Integer, List<String>> lists = new HashMap<Integer, List<String>>();
+    	private ArrayList<Double[]> numbers = new ArrayList<Double[]>();
+    	private ArrayList<List<String>> lists = new ArrayList<List<String>>();
     	
     	/**
     	 * Adds an argument that expects an Online or Offline player.
     	 * No String validation occurs.
     	 */
     	public FormationBuilder player() {
-    		builder.add(0);
+    		builder.add(PLAYER);
     		return this;
     	}
     	
@@ -198,8 +185,10 @@ public class Formation {
     	 * Double validation occurs.
     	 */
     	public FormationBuilder number(double low, double high, double step) {
-    		numbers.put(builder.size(), new Double[]{low, high, step});
-    		builder.add(1);
+			builder.add(NUMBER);
+    		for(int i=numbers.size(); i<builder.size()-1; i++)
+    			numbers.add(null);
+    		numbers.add(builder.size(), new Double[]{low, high, step});
     		return this;
     	}
     	
@@ -208,8 +197,10 @@ public class Formation {
     	 * String validation occurs.
     	 */
     	public FormationBuilder list(String... data) {
-    		lists.put(builder.size(), Arrays.asList(data));
-    		builder.add(2);
+    		builder.add(LIST);
+			for(int i=lists.size(); i<builder.size()-1; i++)
+				numbers.add(null);
+			lists.add(Arrays.asList(data)); //Shared ArrayList
     		return this;
     	}
     	
@@ -218,8 +209,10 @@ public class Formation {
     	 * No String validation occurs.
     	 */
     	public FormationBuilder string(String... data) {
-    		lists.put(builder.size(), Arrays.asList(data)); //Shared HashMap
-    		builder.add(3);
+			builder.add(STRING);
+			for(int i=lists.size(); i<builder.size()-1; i++)
+				numbers.add(null);
+    		lists.add(Arrays.asList(data)); //Shared ArrayList
     		return this;
     	}
     	

@@ -21,7 +21,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import com.knoban.ultimates.Ultimates;
 import com.knoban.ultimates.aspects.AFK;
 import com.knoban.ultimates.aspects.Message;
-import com.knoban.ultimates.utils.Tools;
+import com.knoban.atlas.utils.Tools;
 import com.knoban.atlas.commands.AtlasCommand;
 import com.knoban.atlas.commands.CommandInfo;
 import com.knoban.atlas.commands.Formation;
@@ -74,7 +74,7 @@ public class RecallCommand extends AtlasCommand {
 				if(recalls.contains(p.getUniqueId())) {
 					double tl = 8 - ((double)t/20);
 					
-					Tools.sendActionbar(p, Tools.generateWaitBar((((double)t/20)/8) * 100, 20, ChatColor.GOLD, ChatColor.GRAY) + " " + ChatColor.GREEN + Tools.round(tl, 1) + "s");
+					Tools.actionbarMessage(p, Tools.generateWaitBar((((double)t/20)/8) * 100, 20, ChatColor.GOLD, '☕', ChatColor.GRAY, '☕') + " " + ChatColor.GREEN + Tools.round(tl, 1) + "s");
 					p.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, p.getLocation().clone().add(0, 0.5, 0), 1, 0.3F, 0.1F, 0.3F, 0.01);
 					if(t%20 == 0) {
 						p.playSound(p.getLocation(), Sound.BLOCK_TRIPWIRE_CLICK_ON, 1F, 1F);
@@ -114,7 +114,7 @@ public class RecallCommand extends AtlasCommand {
 						t++;
 					}
 				} else {
-					Tools.sendActionbar(p, ChatColor.RED + "Teleport Cancelled!");
+					Tools.actionbarMessage(p, ChatColor.RED + "Teleport Cancelled!");
 					p.playSound(p.getLocation(), Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 1F, 1F);
 					this.cancel();
 				}
@@ -130,7 +130,7 @@ public class RecallCommand extends AtlasCommand {
 	protected Formation getFormation(CommandSender sender) {
 		return FORM;
 	}
-	
+
 	@EventHandler
 	public void onleave(PlayerQuitEvent e) {
 		cancel(e.getPlayer().getUniqueId());

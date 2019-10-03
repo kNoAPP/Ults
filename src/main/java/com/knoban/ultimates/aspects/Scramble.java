@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.knoban.ultimates.Ultimates;
-import com.knoban.ultimates.utils.Tools;
+import com.knoban.atlas.utils.Tools;
 
 public class Scramble {
 

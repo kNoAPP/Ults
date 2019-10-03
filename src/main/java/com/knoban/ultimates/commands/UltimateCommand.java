@@ -4,7 +4,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.knoban.ultimates.events.Kindred;
-import com.knoban.ultimates.utils.Tools;
+import com.knoban.atlas.utils.Tools;
 import com.knoban.atlas.commands.AtlasCommand;
 import com.knoban.atlas.commands.CommandInfo;
 import com.knoban.atlas.commands.Formation;

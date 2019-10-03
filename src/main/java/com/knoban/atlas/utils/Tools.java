@@ -526,19 +526,36 @@ public class Tools {
 	
 	/**
 	 * 75% - [+++++++++++++++-----] where + is left and - is right.
-	 * @param prct
-	 * @param total
-	 * @param c
-	 * @param left
-	 * @param right
+	 * @param prct Percent the meter should be filled
+	 * @param total Total amount of
+	 * @param leftColor ChatColor for left side
+	 * @param leftCharacter Character for left side
+	 * @param rightColor ChatColor for right side
+	 * @param rightCharacter Character for right side
 	 * @return
 	 */
-	public static String generateWaitBar(double prct, int total, String lc, String rc) {
-		String s = "";
-		for(double i=1; i<total; i++) {
-			if(i/(double)total <= prct) s += lc;
-			else s += rc; 
+	public static String generateWaitBar(double prct, int total, ChatColor leftColor, char leftCharacter,
+										 ChatColor rightColor, char rightCharacter) {
+		StringBuilder sb = new StringBuilder();
+		int i;
+
+		sb.append(leftColor);
+		for(i=0; i<total; i++) {
+			if((double)i/(double)total <= prct)
+				sb.append(leftCharacter);
 		}
-		return s;
+		sb.append(rightColor);
+		for(; i<total; i++) {
+			sb.append(rightCharacter);
+		}
+
+		return sb.toString();
+	}
+
+	public static Block floor(Block b) {
+		while(b.getType() == Material.AIR) {
+			b = b.getWorld().getBlockAt(b.getX(), b.getY() - 1, b.getZ());
+		}
+		return b;
 	}
 }
