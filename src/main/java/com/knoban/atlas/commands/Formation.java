@@ -188,7 +188,7 @@ public class Formation {
 			builder.add(NUMBER);
     		for(int i=numbers.size(); i<builder.size()-1; i++)
     			numbers.add(null);
-    		numbers.add(builder.size(), new Double[]{low, high, step});
+    		numbers.add(new Double[]{low, high, step});
     		return this;
     	}
     	
