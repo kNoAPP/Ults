@@ -1,5 +1,11 @@
 package com.knoban.atlas.commands;
 
+import com.knoban.atlas.commands.Formation;
+import com.knoban.atlas.commands.Formation.FormationBuilder;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class FormationTest {
 
     public static final Formation
