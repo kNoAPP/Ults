@@ -308,6 +308,7 @@ public class Actions implements Listener {
 	
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent e) {
-		if(e.getEntity() instanceof Witch) if(Tools.randomNumber(0, 33) == 30) e.getDrops().add(Items.LEVITATION_ITEM);
+		if(e.getEntity() instanceof Witch && Tools.randomNumber(0, 33) == 30)
+			e.getDrops().add(Items.LEVITATION_ITEM);
 	}
 }
