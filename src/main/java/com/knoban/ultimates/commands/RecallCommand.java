@@ -74,7 +74,7 @@ public class RecallCommand extends AtlasCommand {
 				if(recalls.contains(p.getUniqueId())) {
 					double tl = 8 - ((double)t/20);
 					
-					Tools.actionbarMessage(p, Tools.generateWaitBar((((double)t/20)/8) * 100, 20, ChatColor.GOLD, '☕', ChatColor.GRAY, '☕') + " " + ChatColor.GREEN + Tools.round(tl, 1) + "s");
+					Tools.actionbarMessage(p, Tools.generateWaitBar((double) t / (20.0 * 8.0), 20, ChatColor.GOLD, '☕', ChatColor.GRAY, '☕') + " " + ChatColor.GREEN + Tools.round(tl, 1) + "s");
 					p.getWorld().spawnParticle(Particle.VILLAGER_HAPPY, p.getLocation().clone().add(0, 0.5, 0), 1, 0.3F, 0.1F, 0.3F, 0.01);
 					if(t%20 == 0) {
 						p.playSound(p.getLocation(), Sound.BLOCK_TRIPWIRE_CLICK_ON, 1F, 1F);
@@ -92,7 +92,8 @@ public class RecallCommand extends AtlasCommand {
 							p.teleport(l);
 							m.teleport(l);
 							m.addPassenger(p);
-						}
+						} else
+							p.teleport(l);
 						p.playSound(p.getLocation(), Sound.BLOCK_PORTAL_TRAVEL, 1F, 1F);
 						
 						//Builds Particles

@@ -534,15 +534,14 @@ public class Tools {
 	 * @param rightCharacter Character for right side
 	 * @return
 	 */
-	public static String generateWaitBar(double prct, int total, ChatColor leftColor, char leftCharacter,
+	public static String generateWaitBar(double prct, double total, ChatColor leftColor, char leftCharacter,
 										 ChatColor rightColor, char rightCharacter) {
 		StringBuilder sb = new StringBuilder();
-		int i;
+		double i;
 
 		sb.append(leftColor);
-		for(i=0; i<total; i++) {
-			if((double)i/(double)total <= prct)
-				sb.append(leftCharacter);
+		for(i=0; i/total <= prct && i<total; i++) {
+			sb.append(leftCharacter);
 		}
 		sb.append(rightColor);
 		for(; i<total; i++) {
