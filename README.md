@@ -6,5 +6,3 @@ A simple tool for Survival
 
 This plugin is built for Spigot 1.14.4 and is designed to include small tools to
 better the multiplayer survival experience.
-
-Card Branch - Revamped system with "cards" you can equip. Definitely check it out.
